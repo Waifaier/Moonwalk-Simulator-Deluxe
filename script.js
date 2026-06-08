@@ -12,7 +12,11 @@ let diamondPower = 0;
 
 let totalMoney = 0;
 
-let unlockedAchievements = [];
+let unlockedAchievements = [];[
+    
+let jokers = 0;
+
+const exclusiveAchievements = [];
 
 const michaelStages = [
 
@@ -387,6 +391,78 @@ preco:5000,
 bonus:1000000000,
 tipo:"diamondShop",
 categoria:"diamond"
+},
+
+{
+id:"boxSmall",
+nome:"📦 Caixa Pequena",
+preco:10,
+bonus:0,
+tipo:"box",
+categoria:"diamond"
+},
+
+{
+id:"boxMedium",
+nome:"📦 Caixa Média",
+preco:50,
+bonus:0,
+tipo:"box",
+categoria:"diamond"
+},
+
+{
+id:"boxLarge",
+nome:"📦 Caixa Grande",
+preco:150,
+bonus:0,
+tipo:"box",
+categoria:"diamond"
+},
+
+{
+id:"boxHuge",
+nome:"📦 Caixa Imensa",
+preco:500,
+bonus:0,
+tipo:"box",
+categoria:"diamond"
+},
+
+{
+id:"boxRoyal",
+nome:"👑 Caixa Real",
+preco:1000,
+bonus:0,
+tipo:"box",
+categoria:"diamond"
+},
+
+{
+id:"boxCosmic",
+nome:"🌌 Caixa Cósmica",
+preco:5000,
+bonus:0,
+tipo:"box",
+categoria:"diamond"
+},
+
+{
+id:"boxBaphomet",
+nome:"☠️ Caixa Baphomet",
+preco:25000,
+bonus:0,
+tipo:"box",
+categoria:"diamond"
+},
+
+{
+id:"joker",
+nome:"🃏 Coringa",
+preco:100000,
+bonus:0,
+tipo:"joker",
+categoria:"diamond"
 }
 
 ];
@@ -489,10 +565,119 @@ return btn;
 
 }
 
+function openBox(type){
+
+if(Math.random() < 0.01){
+
+findJoker();
+return;
+
+}
+
+let gain = 0;
+
+switch(type){
+
+case "boxSmall":
+gain =
+money * 0.10;
+break;
+
+case "boxMedium":
+gain =
+money * 0.20;
+break;
+
+case "boxLarge":
+gain =
+money * 0.35;
+break;
+
+case "boxHuge":
+gain =
+money * 0.50;
+break;
+
+case "boxRoyal":
+gain =
+money * 0.60;
+break;
+
+case "boxCosmic":
+gain =
+money * 0.75;
+break;
+
+case "boxBaphomet":
+gain =
+money * 0.90;
+break;
+
+}
+
+money += Math.floor(gain);
+
+showPopup(
+"📦 +" +
+formatNumber(gain)
+);
+
+updateUI();
+
+}
+
 function buyUpgrade(index){
 
 const item =
 upgrades[index];
+
+if(
+item.tipo ===
+"box"
+){
+
+if(
+diamonds <
+item.preco
+)
+return;
+
+diamonds -=
+item.preco;
+
+openBox(item.id);
+
+updateUI();
+
+return;
+
+}
+
+if(
+item.tipo ===
+"joker"
+){
+
+if(
+diamonds <
+item.preco
+)
+return;
+
+diamonds -=
+item.preco;
+
+jokers++;
+
+showPopup(
+"🃏 Coringa comprada!"
+);
+
+updateUI();
+
+return;
+
+}
 
 if(
 item.tipo ===
@@ -739,6 +924,53 @@ popup.remove();
 
 }
 
+function unlockExclusiveAchievement(name){
+
+if(exclusiveAchievements.includes(name))
+return;
+
+exclusiveAchievements.push(name);
+
+const div =
+document.createElement("div");
+
+div.className =
+"achievement exclusiveAchievement";
+
+div.textContent =
+"💜 " + name;
+
+const container =
+document.getElementById(
+"achievements"
+);
+
+if(container){
+
+container.appendChild(div);
+
+}
+
+showPopup(
+"💜 CONQUISTA EXCLUSIVA: " +
+name
+);
+
+}
+
+function findJoker(){
+
+jokers++;
+
+showPopup(
+"🃏 CORINGA ENCONTRADA!"
+);
+
+unlockExclusiveAchievement(
+"🃏 O Impossível Aconteceu"
+);
+
+}
 // =====================================
 // SAVE
 // =====================================
@@ -747,7 +979,10 @@ function saveGame(){
 
 const data = {
 
+jokers,
+exclusiveAchievements,
 money,
+
 diamonds,
 
 clickPower,
@@ -776,6 +1011,12 @@ JSON.stringify(data)
 }
 
 function loadGame(){
+
+jokers =
+data.jokers || 0;
+
+exclusiveAchievements =
+data.exclusiveAchievements || [];
 
 const save =
 localStorage.getItem(
