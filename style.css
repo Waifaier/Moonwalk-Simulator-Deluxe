@@ -517,3 +517,16 @@ border-radius:8px;
     }
 
 }
+.exclusiveAchievement{
+
+background:#6a00ff;
+
+border:2px solid #b366ff;
+
+color:white;
+
+font-weight:bold;
+
+box-shadow:0 0 15px #a64dff;
+
+}
