@@ -12,11 +12,11 @@ let diamondPower = 0;
 
 let totalMoney = 0;
 
-let unlockedAchievements = [];[
+let unlockedAchievements = [];
     
 let jokers = 0;
 
-const exclusiveAchievements = [];
+let exclusiveAchievements = [];
 
 const michaelStages = [
 
@@ -1012,6 +1012,17 @@ JSON.stringify(data)
 
 function loadGame(){
 
+const save =
+localStorage.getItem(
+"moonwalkV2"
+);
+
+if(!save)
+return;
+
+const data =
+JSON.parse(save);
+
 jokers =
 data.jokers || 0;
 
@@ -1406,6 +1417,8 @@ addDancer();
 alert(
 "👑 Wifier Mode Activated"
 );
+
+break;
 
 case "give":
 
