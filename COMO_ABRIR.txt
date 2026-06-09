@@ -1,2 +1,0 @@
-Execute start_server.bat e abra http://localhost:8000/index.html no navegador.
-O multiplayer Firebase nao funciona via file:///; precisa de HTTP/HTTPS.
