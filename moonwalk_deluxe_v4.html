@@ -1,0 +1,2786 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌙 Moonwalk Simulator Deluxe</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap');
+
+:root {
+  --gold: #ffd700;
+  --gold2: #ffaa00;
+  --purple: #9b30ff;
+  --purple2: #6600cc;
+  --blue: #00d4ff;
+  --blue2: #0088cc;
+  --dark: #080810;
+  --dark2: #10101e;
+  --dark3: #181830;
+  --dark4: #20203a;
+  --text: #e8e8ff;
+  --green: #00ff88;
+  --pink: #ff00aa;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--dark);
+  color: var(--text);
+  font-family: 'Rajdhani', Arial, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* STARS BACKGROUND */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(155,48,255,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(0,212,255,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(255,215,0,0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* TITLE */
+.game-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(20px, 5vw, 36px);
+  font-weight: 900;
+  text-align: center;
+  background: linear-gradient(90deg, var(--gold), var(--purple), var(--blue), var(--gold));
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: titleShine 4s linear infinite;
+  margin-bottom: 12px;
+  text-shadow: none;
+  letter-spacing: 2px;
+}
+@keyframes titleShine {
+  0%{background-position:0% 50%}
+  100%{background-position:300% 50%}
+}
+
+/* BANNER */
+.banner {
+  text-align: center;
+  padding: 8px 16px;
+  background: linear-gradient(90deg, var(--purple2), var(--pink), var(--purple2));
+  border-radius: 30px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+  box-shadow: 0 0 20px rgba(255,0,170,0.4);
+}
+
+/* STATS BAR */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.stat-card {
+  background: var(--dark3);
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 12px;
+  padding: 10px 12px;
+  text-align: center;
+  transition: border-color 0.3s;
+}
+.stat-card:hover { border-color: var(--gold); }
+.stat-label {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.stat-value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-top: 2px;
+}
+.stat-value.gems { color: var(--blue); }
+.stat-value.jokers { color: var(--purple); }
+.stat-value.prestige { color: var(--pink); }
+
+/* LEVEL BAR */
+.level-section {
+  background: var(--dark3);
+  border: 1px solid rgba(155,48,255,0.3);
+  border-radius: 12px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+}
+.level-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.level-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+  color: var(--gold);
+  font-weight: 700;
+}
+.level-num {
+  font-size: 13px;
+  color: var(--purple);
+}
+.level-bar-bg {
+  background: var(--dark);
+  border-radius: 6px;
+  height: 8px;
+  overflow: hidden;
+}
+.level-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--purple), var(--gold));
+  border-radius: 6px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 8px var(--purple);
+}
+
+/* GAME AREA */
+.game-area {
+  position: relative;
+  background: var(--dark3);
+  border: 1px solid rgba(255,215,0,0.15);
+  border-radius: 20px;
+  height: 240px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+.game-area::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(155,48,255,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+#michael {
+  font-size: 110px;
+  cursor: pointer;
+  animation: michaelFloat 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 30px rgba(255,215,0,0.8));
+  transition: transform 0.1s;
+  position: relative;
+  z-index: 2;
+}
+#michael:hover { filter: drop-shadow(0 0 50px gold); }
+#michael:active { transform: scale(0.88) !important; }
+@keyframes michaelFloat {
+  0%,100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-12px) scale(1.04); }
+}
+
+.particle-ring {
+  position: absolute;
+  width: 180px; height: 180px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,215,0,0.1);
+  animation: ringPulse 3s ease-in-out infinite;
+}
+.particle-ring:nth-child(2) { width:220px; height:220px; animation-delay:0.5s; border-color: rgba(155,48,255,0.1); }
+.particle-ring:nth-child(3) { width:260px; height:260px; animation-delay:1s; border-color: rgba(0,212,255,0.06); }
+@keyframes ringPulse {
+  0%,100% { transform: scale(1); opacity:0.5; }
+  50% { transform: scale(1.05); opacity:1; }
+}
+
+#dancers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.dancer {
+  position: absolute;
+  animation: dancerBounce 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes dancerBounce {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
+
+/* NAV TABS */
+.nav-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.nav-tab {
+  background: var(--dark3);
+  border: 1px solid rgba(255,215,0,0.2);
+  color: var(--text);
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+}
+.nav-tab:hover { border-color: var(--gold); color: var(--gold); }
+.nav-tab.active {
+  background: linear-gradient(135deg, var(--purple2), var(--dark3));
+  border-color: var(--purple);
+  color: var(--gold);
+  box-shadow: 0 0 12px rgba(155,48,255,0.4);
+}
+
+/* SHOP PANELS */
+.panel {
+  display: none;
+  animation: panelIn 0.3s ease;
+}
+.panel.active { display: block; }
+@keyframes panelIn {
+  from { opacity:0; transform: translateY(8px); }
+  to   { opacity:1; transform: none; }
+}
+
+.shop-section {
+  background: var(--dark2);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.shop-section h3 {
+  color: var(--gold);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255,215,0,0.15);
+}
+
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.shop-item {
+  background: var(--dark4);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  width: 100%;
+}
+.shop-item:hover {
+  border-color: var(--gold);
+  background: rgba(255,215,0,0.06);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255,215,0,0.15);
+}
+.shop-item:active { transform: scale(0.97); }
+.shop-item.cant-afford {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.shop-item.cant-afford:hover {
+  transform: none;
+  border-color: rgba(255,255,255,0.08);
+  background: var(--dark4);
+  box-shadow: none;
+}
+.item-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 4px;
+}
+.item-bonus {
+  font-size: 12px;
+  color: var(--green);
+  margin-bottom: 6px;
+}
+.item-price {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  display: inline-block;
+}
+.item-price.gold-price { background: rgba(255,215,0,0.15); color: var(--gold); border: 1px solid rgba(255,215,0,0.3); }
+.item-price.gem-price  { background: rgba(0,212,255,0.15);  color: var(--blue); border: 1px solid rgba(0,212,255,0.3); }
+
+/* BOX ITEMS */
+.box-item {
+  border-color: rgba(0,212,255,0.2) !important;
+}
+.box-item:hover {
+  border-color: var(--blue) !important;
+  box-shadow: 0 4px 16px rgba(0,212,255,0.2) !important;
+}
+
+/* JOKER BUTTON */
+.joker-section {
+  background: linear-gradient(135deg, rgba(155,48,255,0.15), rgba(0,212,255,0.1));
+  border: 1px solid var(--purple);
+  border-radius: 16px;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+.joker-count {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 28px;
+  color: var(--purple);
+  margin-bottom: 8px;
+  text-shadow: 0 0 20px var(--purple);
+}
+.joker-desc {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 12px;
+}
+.btn-joker {
+  background: linear-gradient(135deg, var(--purple2), #330066);
+  border: 2px solid var(--purple);
+  color: white;
+  padding: 12px 32px;
+  border-radius: 30px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 0 20px rgba(155,48,255,0.4);
+  letter-spacing: 1px;
+}
+.btn-joker:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(155,48,255,0.7);
+}
+
+/* ACHIEVEMENTS */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+}
+.achievement-card {
+  background: var(--dark3);
+  border: 1px solid rgba(255,215,0,0.25);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.achievement-card.exclusive {
+  border-color: var(--purple);
+  background: rgba(155,48,255,0.1);
+  box-shadow: 0 0 10px rgba(155,48,255,0.2);
+}
+.achievement-card.locked {
+  opacity: 0.3;
+  border-color: rgba(255,255,255,0.1);
+}
+
+/* POPUP */
+.popup {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--dark3);
+  border: 2px solid var(--gold);
+  border-radius: 14px;
+  padding: 12px 18px;
+  font-weight: 700;
+  font-size: 14px;
+  animation: popupSlide 3s forwards;
+  z-index: 99999;
+  max-width: 280px;
+  box-shadow: 0 0 20px rgba(255,215,0,0.3);
+  pointer-events: none;
+}
+.popup.gem { border-color: var(--blue); box-shadow: 0 0 20px rgba(0,212,255,0.3); }
+.popup.achievement { border-color: var(--purple); box-shadow: 0 0 20px rgba(155,48,255,0.4); }
+@keyframes popupSlide {
+  0%   { opacity:0; transform: translateX(60px); }
+  12%  { opacity:1; transform: translateX(0); }
+  80%  { opacity:1; }
+  100% { opacity:0; transform: translateX(60px); }
+}
+
+/* FLOATING MONEY */
+.float-money {
+  position: fixed;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold);
+  pointer-events: none;
+  animation: floatUp 1s forwards;
+  z-index: 9999;
+  text-shadow: 0 0 8px rgba(255,215,0,0.8);
+}
+@keyframes floatUp {
+  0%   { opacity:1; transform: translateY(0) scale(1); }
+  100% { opacity:0; transform: translateY(-70px) scale(0.8); }
+}
+
+/* EVENT BANNER */
+.event-banner {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%) scale(0.5);
+  background: linear-gradient(135deg, #1a0033, #000820);
+  border: 3px solid var(--gold);
+  border-radius: 20px;
+  padding: 24px 40px;
+  text-align: center;
+  z-index: 100000;
+  animation: eventPop 4s forwards;
+  pointer-events: none;
+  box-shadow: 0 0 60px rgba(255,215,0,0.5);
+}
+.event-banner .ev-emoji { font-size: 60px; }
+.event-banner .ev-title { font-family: 'Orbitron', sans-serif; font-size: 20px; color: var(--gold); margin: 8px 0; }
+.event-banner .ev-sub { font-size: 14px; color: #aaa; }
+@keyframes eventPop {
+  0%   { transform:translate(-50%,-50%) scale(0.5); opacity:0; }
+  10%  { transform:translate(-50%,-50%) scale(1.05); opacity:1; }
+  15%  { transform:translate(-50%,-50%) scale(1); }
+  80%  { transform:translate(-50%,-50%) scale(1); opacity:1; }
+  100% { transform:translate(-50%,-50%) scale(0.8); opacity:0; }
+}
+
+/* PRESTIGE BUTTON */
+.btn-prestige {
+  background: linear-gradient(135deg, #330033, #000820);
+  border: 2px solid var(--pink);
+  color: var(--pink);
+  padding: 12px 28px;
+  border-radius: 30px;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 1px;
+  margin: 8px 4px;
+}
+.btn-prestige:hover {
+  box-shadow: 0 0 20px rgba(255,0,170,0.5);
+  transform: scale(1.04);
+}
+
+/* ADMIN BTN */
+.admin-hint {
+  text-align: center;
+  font-size: 11px;
+  color: #333;
+  margin-top: 20px;
+  cursor: default;
+}
+
+/* FOOTER */
+footer {
+  text-align: center;
+  padding: 20px;
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 14px;
+  text-shadow: 0 0 10px var(--gold);
+  animation: footerGlow 3s infinite alternate;
+}
+@keyframes footerGlow { from{opacity:0.6} to{opacity:1} }
+
+/* MAXED OUT ITEM */
+.shop-item.maxed {
+  border-color: rgba(255,50,50,0.3) !important;
+  background: rgba(255,0,0,0.04) !important;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 6px; }
+
+/* ENEMIES */
+.enemy {
+  position: absolute;
+  font-size: 36px;
+  cursor: pointer;
+  z-index: 5;
+  transition: filter 0.1s;
+  user-select: none;
+  filter: drop-shadow(0 0 8px rgba(255,50,50,0.8));
+}
+.enemy:hover { filter: drop-shadow(0 0 16px #ff4444) brightness(1.3); }
+.enemy:active { transform: scale(0.85); }
+
+.enemy-hp-bar {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 50px;
+  height: 5px;
+  background: #300;
+  border-radius: 3px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.enemy-hp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff2200, #ff6600);
+  border-radius: 3px;
+  transition: width 0.15s;
+}
+
+.boss .enemy-hp-bar { width: 80px; height: 8px; bottom: -14px; }
+.boss .enemy-hp-fill { background: linear-gradient(90deg, #9b30ff, #ff00aa); }
+.boss { filter: drop-shadow(0 0 20px rgba(155,48,255,0.9)) drop-shadow(0 0 40px rgba(255,0,170,0.5)) !important; }
+.boss:hover { filter: drop-shadow(0 0 30px #9b30ff) brightness(1.2) !important; }
+
+.enemy-dmg {
+  position: absolute;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ff4444;
+  pointer-events: none;
+  animation: floatUp 0.7s forwards;
+  z-index: 10;
+  text-shadow: 0 0 6px rgba(255,0,0,0.8);
+  font-family: 'Orbitron', sans-serif;
+}
+
+.boss-warning {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: rgba(0,0,0,0.75);
+  z-index: 20;
+  border-radius: 20px;
+  animation: bossWarnFade 2.5s forwards;
+  pointer-events: none;
+}
+.boss-warning-text {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 26px;
+  font-weight: 900;
+  color: #ff00aa;
+  text-shadow: 0 0 30px #ff00aa, 0 0 60px #9b30ff;
+  animation: bossTextPulse 0.4s ease-in-out infinite alternate;
+}
+.boss-warning-sub {
+  font-size: 14px;
+  color: #aaa;
+  margin-top: 8px;
+}
+@keyframes bossWarnFade {
+  0%   { opacity:0; }
+  10%  { opacity:1; }
+  80%  { opacity:1; }
+  100% { opacity:0; }
+}
+@keyframes bossTextPulse {
+  from { transform: scale(1); }
+  to   { transform: scale(1.06); }
+}
+
+.steal-flash {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,0,0,0.25);
+  border-radius: 20px;
+  pointer-events: none;
+  animation: stealFlashAnim 0.3s forwards;
+  z-index: 15;
+}
+@keyframes stealFlashAnim {
+  0%   { opacity:1; }
+  100% { opacity:0; }
+}
+
+.enemy-kill-burst {
+  position: absolute;
+  font-size: 28px;
+  pointer-events: none;
+  animation: killBurst 0.8s forwards;
+  z-index: 12;
+}
+@keyframes killBurst {
+  0%   { opacity:1; transform: scale(0.5); }
+  40%  { opacity:1; transform: scale(1.4); }
+  100% { opacity:0; transform: scale(2) translateY(-30px); }
+}
+
+/* KILL COUNT BADGE */
+#killBadge {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,50,50,0.4);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #ff6666;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  z-index: 6;
+  pointer-events: none;
+}
+#bossCounter {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(155,48,255,0.4);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #cc88ff;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* SOUND BTN */
+.sound-btn {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background: var(--dark3);
+  border: 1px solid rgba(255,215,0,0.3);
+  border-radius: 50%;
+  width: 42px; height: 42px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+}
+.sound-btn:hover { border-color: var(--gold); }
+
+/* SAVE indicator */
+.save-dot {
+  position: fixed;
+  bottom: 16px;
+  left: 16px;
+  font-size: 11px;
+  color: #444;
+  z-index: 1000;
+}
+.save-dot.saving { color: var(--green); }
+
+/* RESPONSIVE */
+@media(max-width:600px) {
+  .stats-bar { grid-template-columns: repeat(3, 1fr); }
+  .items-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="banner">✨ MOONWALK SIMULATOR DELUXE • SINGLEPLAYER EDITION ✨</div>
+  <h1 class="game-title">🌙 MOONWALK SIMULATOR</h1>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-label">💰 Moedas</div>
+      <div class="stat-value" id="statMoney">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">💎 Gemas</div>
+      <div class="stat-value gems" id="statDiamonds">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🃏 Coringas</div>
+      <div class="stat-value jokers" id="statJokers">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">⚡ Clique</div>
+      <div class="stat-value" id="statClick">1</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">🏭 Auto/s</div>
+      <div class="stat-value" id="statAuto">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">⚔️ Combate</div>
+      <div class="stat-value" id="statCombat">1</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">💎 Gema/s</div>
+      <div class="stat-value gems" id="statGemAuto">0</div>
+    </div>
+  </div>
+
+  <!-- LEVEL -->
+  <div class="level-section">
+    <div class="level-header">
+      <span class="level-name" id="levelName">⭐ Michael Mendigo</span>
+      <span class="level-num">Nv <span id="levelNum">1</span>/100 &nbsp;|&nbsp; 👑 Prestígio: <span id="prestigeCount">0</span></span>
+    </div>
+    <div class="level-bar-bg">
+      <div class="level-bar-fill" id="levelBar" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- GAME AREA -->
+  <div class="game-area" id="gameArea">
+    <div class="particle-ring"></div>
+    <div class="particle-ring"></div>
+    <div class="particle-ring"></div>
+    <div id="dancers"></div>
+    <div id="michael">🧍</div>
+    <div id="killBadge">💀 0 kills</div>
+    <div id="bossCounter">⚠️ Horda no nível 20</div>
+  </div>
+
+  <!-- NAV TABS -->
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="setTab('click')">⚡ Clique</button>
+    <button class="nav-tab" onclick="setTab('auto')">🏭 Auto</button>
+    <button class="nav-tab" onclick="setTab('power')">💥 Power Ups</button>
+    <button class="nav-tab" onclick="setTab('elite')">👑 Elite</button>
+    <button class="nav-tab" onclick="setTab('combat')">⚔️ Batalha</button>
+    <button class="nav-tab" onclick="setTab('caixas')">🎁 Baús</button>
+    <button class="nav-tab" onclick="setTab('joker')">🃏 Coringa</button>
+    <button class="nav-tab" onclick="setTab('achievements')">🏆 Conquistas</button>
+    <button class="nav-tab" onclick="setTab('prestige')">🌟 Prestígio</button>
+  </div>
+
+  <!-- PANEL: CLICK -->
+  <div class="panel active" id="panel-click">
+    <div class="shop-section">
+      <h3>⚡ UPGRADES DE CLIQUE</h3>
+      <div class="items-grid" id="shopClick"></div>
+    </div>
+  </div>
+
+  <!-- PANEL: POWER UPS -->
+  <div class="panel" id="panel-power">
+    <div class="shop-section">
+      <h3>🎯 MULTIPLICADORES DE CLIQUE</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:10px;">Multiplicam diretamente seu poder de clique. Cada um tem nível máximo — não dá pra abusar!</p>
+      <div class="items-grid" id="shopPowerClick"></div>
+    </div>
+    <div class="shop-section">
+      <h3>🏭 MULTIPLICADORES DE AUTO</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:10px;">Multiplicam sua produção automática. Preços sobem exponencialmente a cada nível.</p>
+      <div class="items-grid" id="shopPowerAuto"></div>
+    </div>
+    <div class="shop-section">
+      <h3>💎 MULTIPLICADORES DE GEMA</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:10px;">Multiplicam gemas por segundo. Extremamente caros nos níveis altos.</p>
+      <div class="items-grid" id="shopPowerGem"></div>
+    </div>
+    <div class="shop-section" style="border-color:rgba(255,0,170,0.3);">
+      <h3 style="color:var(--pink);">🌟 BÊNÇÃOS GLOBAIS — Multiplicam TUDO</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:10px;"><b style="color:var(--pink)">ATENÇÃO:</b> Multiplicam clique + auto + gemas simultaneamente. Preços absurdos. Nível máximo limitado!</p>
+      <div class="items-grid" id="shopPowerGlobal"></div>
+    </div>
+  </div>
+
+  <!-- PANEL: AUTO -->
+  <div class="panel" id="panel-auto">
+    <div class="shop-section">
+      <h3>🏭 AUTOMAÇÃO (Produção Passiva)</h3>
+      <div class="items-grid" id="shopAuto"></div>
+    </div>
+    <div class="shop-section">
+      <h3>⛏️ MINAS DE GEMA</h3>
+      <div class="items-grid" id="shopMines"></div>
+    </div>
+  </div>
+
+  <!-- PANEL: ELITE -->
+  <div class="panel" id="panel-elite">
+    <div class="shop-section">
+      <h3>👑 UPGRADES ELITE (Requerem Gemas)</h3>
+      <div class="items-grid" id="shopElite"></div>
+    </div>
+  </div>
+
+  <!-- PANEL: COMBAT -->
+  <div class="panel" id="panel-combat">
+    <div class="shop-section">
+      <h3>⚔️ ARSENAL DE BATALHA</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:10px;">
+        Aumenta seu <b style="color:#ff6644">Poder de Combate ⚔️</b> — dano que você causa nos inimigos e bosses das hordas.<br>
+        <span style="color:#ff4444">Horda nível 20: boss leva 10 cliques. A cada +20 níveis, o boss fica 2x mais resistente!</span>
+      </p>
+      <div class="items-grid" id="shopCombat"></div>
+    </div>
+    <div class="shop-section">
+      <h3>🛡️ DEFESAS (reduzem roubo dos inimigos)</h3>
+      <div class="items-grid" id="shopDefense"></div>
+    </div>
+    <div class="shop-section">
+      <h3>💣 HABILIDADES ESPECIAIS (💎 Gemas)</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:10px;">Habilidades únicas ativas que destroem inimigos instantaneamente.</p>
+      <div class="items-grid" id="shopSkills"></div>
+    </div>
+  </div>
+
+  <!-- PANEL: CAIXAS -->
+  <div class="panel" id="panel-caixas">
+    <div class="shop-section">
+      <h3>🎁 BAÚS — Compre com 💎 Gemas</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:10px;">Cada baú tem <b style="color:#ff4444">0.3% de chance</b> de dar um Coringa — extremamente raro! Baús custam <b style="color:var(--blue)">Gemas</b>.</p>
+      <div class="items-grid" id="shopCaixas"></div>
+    </div>
+  </div>
+
+  <!-- PANEL: JOKER -->
+  <div class="panel" id="panel-joker">
+    <div class="joker-section">
+      <div class="joker-count">🃏 <span id="jokerCount">0</span> Coringas</div>
+      <div class="joker-desc">Cada Coringa dá 50% de chance: <b style="color:var(--gold)">+10 Bilhões de Moedas</b> ou <b style="color:var(--blue)">+10 Bilhões de Gemas</b></div>
+      <button class="btn-joker" onclick="useJoker()">🃏 USAR CORINGA</button>
+    </div>
+    <div class="shop-section" style="margin-top:0">
+      <h3>🎰 COMPRAR CORINGA (💎 Gemas)</h3>
+      <div class="items-grid" id="shopJoker"></div>
+    </div>
+  </div>
+
+  <!-- PANEL: ACHIEVEMENTS -->
+  <div class="panel" id="panel-achievements">
+    <div class="shop-section">
+      <h3>🏆 CONQUISTAS (<span id="achCount">0</span>/50 desbloqueadas)</h3>
+      <div class="achievements-grid" id="achievementsGrid"></div>
+    </div>
+  </div>
+
+  <!-- PANEL: PRESTIGE -->
+  <div class="panel" id="panel-prestige">
+    <div class="shop-section">
+      <h3>🌟 PRESTÍGIO</h3>
+      <p style="margin-bottom:10px;font-size:14px;color:#aaa;">Resetar o progresso para ganhar bônus permanentes de clique.<br>Requer: <b style="color:var(--gold)">1 Bilhão</b> de moedas no total ganho.</p>
+      <p style="font-size:13px;color:#888;margin-bottom:14px;">Total Ganho: <b style="color:var(--gold)" id="totalMoneyDisplay">0</b></p>
+      <button class="btn-prestige" onclick="prestige()">🌟 FAZER PRESTÍGIO</button>
+      <br>
+      <p style="font-size:13px;color:var(--pink);margin-top:10px;">Bônus acumulado de prestígio: +<span id="prestigeBonus">0</span> por clique (permanente)</p>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<div class="save-dot" id="saveDot">💾 Auto-save</div>
+<button class="sound-btn" id="soundBtn" title="Som">🔊</button>
+<footer id="credits">Jogo feito por Wifier</footer>
+
+<script>
+// =============================================
+// MOONWALK SIMULATOR DELUXE — ENGINE
+// =============================================
+
+// --- STATE ---
+let money = 0;
+let diamonds = 0;
+let jokers = 0;
+let clickPower = 1;       // começa em 1
+let autoPower = 0;
+let gemPower = 0;
+let totalMoneyEarned = 0;
+let prestigeCount = 0;
+let prestigeBonus = 0;    // bônus permanente de clique
+let soundOn = true;
+let unlockedAchs = new Set();
+let currentTab = 'click';
+
+// --- LEVELS (100 levels) ---
+const LEVELS = [
+  [0,         "🧍", "Michael Mendigo"],
+  [100,       "🚶", "Michael Quebrado"],
+  [500,       "🕴️", "Michael Trabalhador"],
+  [2000,      "🎵", "Michael Entregador"],
+  [8000,      "🎤", "Michael Vendedor"],
+  [25000,     "🎶", "Michael Cantor"],
+  [80000,     "🧤", "Michael da Luva"],
+  [250000,    "🕺", "Michael Dançarino"],
+  [800000,    "🎸", "Michael Músico"],
+  [2.5e6,     "🌟", "Michael Estrela"],
+  [8e6,       "🎩", "Michael Famoso"],
+  [25e6,      "💰", "Michael Rico"],
+  [80e6,      "👑", "Michael Rei"],
+  [250e6,     "💎", "Michael Diamante"],
+  [800e6,     "🔥", "Michael Lendário"],
+  [2.5e9,     "⚡", "Michael Elétrico"],
+  [8e9,       "🌌", "Michael Cósmico"],
+  [25e9,      "🚀", "Michael Intergaláctico"],
+  [80e9,      "🧠", "Michael Quântico"],
+  [250e9,     "⚛️", "Michael Multiversal"],
+  [800e9,     "🔮", "Michael Arcano"],
+  [2.5e12,    "😇", "Michael Divino"],
+  [8e12,      "🐉", "Michael Dragão"],
+  [25e12,     "🌋", "Michael Apocalipse"],
+  [80e12,     "😈", "Michael Supremo"],
+  [250e12,    "👁️", "Michael Observador"],
+  [800e12,    "♾️", "Michael Infinito"],
+  [2.5e15,    "🌌", "Michael Deus"],
+  [8e15,      "💀", "Michael Final"],
+  [25e15,     "✨", "Michael Transcendente"],
+  [80e15,     "🌠", "Michael Estelar"],
+  [250e15,    "🌞", "Michael Solar"],
+  [800e15,    "🌊", "Michael Oceânico"],
+  [2.5e18,    "⚔️", "Michael Guerreiro"],
+  [8e18,      "🏆", "Michael Campeão"],
+  [25e18,     "👹", "Michael Demônio"],
+  [80e18,     "🦋", "Michael Renascido"],
+  [250e18,    "🔱", "Michael Tritão"],
+  [800e18,    "🌀", "Michael Espiral"],
+  [2.5e21,    "🎭", "Michael Teatral"],
+  [8e21,      "🦅", "Michael Águia"],
+  [25e21,     "🔯", "Michael Místico"],
+  [80e21,     "🌙", "Michael Lunar"],
+  [250e21,    "☄️", "Michael Cometa"],
+  [800e21,    "🛸", "Michael Alien"],
+  [2.5e24,    "💫", "Michael Nebuloso"],
+  [8e24,      "🌈", "Michael Prisma"],
+  [25e24,     "🎆", "Michael Explosivo"],
+  [80e24,     "👻", "Michael Fantasma"],
+  [250e24,    "🦊", "Michael Astuto"],
+  [800e24,    "🐺", "Michael Lobo"],
+  [2.5e27,    "🦁", "Michael Leão"],
+  [8e27,      "🐲", "Michael Dragão Negro"],
+  [25e27,     "🌍", "Michael Terrestre"],
+  [80e27,     "🌌", "Michael Galáxia"],
+  [250e27,    "⭐", "Michael Estelar+"],
+  [800e27,    "🌟", "Michael Supernova"],
+  [2.5e30,    "💥", "Michael Big Bang"],
+  [8e30,      "🔥", "Michael Chamas Eternas"],
+  [25e30,     "❄️", "Michael Gelo Cósmico"],
+  [80e30,     "⚡", "Michael Raio Divino"],
+  [250e30,    "🌪️", "Michael Tornado"],
+  [800e30,    "🌊", "Michael Tsunami"],
+  [2.5e33,    "🌋", "Michael Vulcão"],
+  [8e33,      "🏔️", "Michael Montanha"],
+  [25e33,     "🌿", "Michael Natureza"],
+  [80e33,     "🌺", "Michael Flor Eterna"],
+  [250e33,    "🍄", "Michael Cogumelo"],
+  [800e33,    "🐉", "Michael Wyrm"],
+  [2.5e36,    "👑", "Michael Rei Supremo"],
+  [8e36,      "💎", "Michael Diamante Perfeito"],
+  [25e36,     "🔮", "Michael Oráculo"],
+  [80e36,     "🌠", "Michael Estrela Cadente"],
+  [250e36,    "✨", "Michael Faísca Divina"],
+  [800e36,    "🎇", "Michael Fogos Eternos"],
+  [2.5e39,    "🎉", "Michael Celebridade"],
+  [8e39,      "🎊", "Michael Carnaval"],
+  [25e39,     "🏅", "Michael Medalha"],
+  [80e39,     "🥇", "Michael Ouro Puro"],
+  [250e39,    "🥈", "Michael Prata"],
+  [800e39,    "🥉", "Michael Bronze"],
+  [2.5e42,    "🔑", "Michael Chave Mestre"],
+  [8e42,      "🗝️", "Michael Segredo"],
+  [25e42,     "📜", "Michael Lenda"],
+  [80e42,     "📖", "Michael Escritura"],
+  [250e42,    "🖊️", "Michael Autor"],
+  [800e42,    "🎨", "Michael Artista"],
+  [2.5e45,    "🎭", "Michael Ilusionista"],
+  [8e45,      "🪄", "Michael Mago"],
+  [25e45,     "🧙", "Michael Feiticeiro"],
+  [80e45,     "👁️", "Michael Vidente"],
+  [250e45,    "🔭", "Michael Astrônomo"],
+  [800e45,    "🔬", "Michael Cientista"],
+  [2.5e48,    "🧬", "Michael DNA"],
+  [8e48,      "⚗️", "Michael Alquimista"],
+  [25e48,     "🌌", "Michael Universo"],
+  [80e48,     "♾️", "Michael Eterno"],
+  [250e48,    "🌀", "Michael Vórtice"],
+  [800e48,    "💫", "Michael Singularidade"],
+  [2.5e51,    "🌟", "Michael Lenda Viva"],
+  [8e51,      "👑", "Michael Rei do Pop"],
+  [25e51,     "🌌", "Michael Astral"],
+  [80e51,     "🔥", "Michael Fênix"],
+  [250e51,    "💎", "Michael Cristal"],
+  [800e51,    "🌠", "Michael Estrela Máxima"],
+  [2.5e54,    "✨", "Michael Ascendido"],
+  [8e54,      "👼", "Michael Anjo"],
+  [25e54,     "😇", "Michael Serafim"],
+  [80e54,     "🕊️", "Michael Celestial"],
+  [250e54,    "☀️", "Michael Sol"],
+  [Infinity,  "🌙", "Michael Deus do Moonwalk"],
+];
+
+// --- SHOP DATA ---
+// CLICK upgrades: preco começa baixo, bonus em cliques extras
+const clickUpgrades = [
+  { id:"shoe",     nome:"👞 Sapato Brilhante",    preco:10,        bonus:1,       tipo:"click", maxLevel:20 },
+  { id:"glove",    nome:"🧤 Luva de Seda",        preco:80,        bonus:5,       tipo:"click", maxLevel:20 },
+  { id:"glasses",  nome:"🕶️ Óculos Escuros",     preco:400,       bonus:20,      tipo:"click", maxLevel:15 },
+  { id:"hat",      nome:"🎩 Chapéu de Gala",      preco:2000,      bonus:80,      tipo:"click", maxLevel:15 },
+  { id:"crown",    nome:"👑 Coroa Moonwalk",       preco:12000,     bonus:350,     tipo:"click", maxLevel:10 },
+  { id:"dshoe",    nome:"💎 Sapato Diamante",      preco:70000,     bonus:1500,    tipo:"click", maxLevel:10 },
+  { id:"cshoe",    nome:"⚡ Sapato Cósmico",       preco:500000,    bonus:8000,    tipo:"click", maxLevel:8 },
+  { id:"gshoe",    nome:"🌟 Sapato Galáctico",     preco:5e6,       bonus:50000,   tipo:"click", maxLevel:8 },
+  { id:"dshoe2",   nome:"🌌 Sapato Dimensional",   preco:50e6,      bonus:400000,  tipo:"click", maxLevel:5 },
+  { id:"godshoe",  nome:"☀️ Sapato Divino",        preco:500e6,     bonus:4e6,     tipo:"click", maxLevel:5 },
+  { id:"fing",     nome:"🖐️ Dedo Forte",           preco:10,        bonus:1,       tipo:"click", maxLevel:20 },
+  { id:"mgamer",   nome:"🖱️ Mouse Gamer",          preco:300,       bonus:15,      tipo:"click", maxLevel:15 },
+  { id:"mec",      nome:"⌨️ Teclado Mecânico",     preco:1500,      bonus:70,      tipo:"click", maxLevel:15 },
+  { id:"ai",       nome:"🤖 IA Assistente",        preco:20000,     bonus:800,     tipo:"click", maxLevel:10 },
+  { id:"superpc",  nome:"💻 Super Computador",     preco:200000,    bonus:8000,    tipo:"click", maxLevel:8 },
+  // TIER 2 — preços altos
+  { id:"neuro",    nome:"🧠 Neuro-Interface",      preco:5e9,       bonus:5e6,     tipo:"click", maxLevel:5 },
+  { id:"quantc",   nome:"⚛️ Processador Quântico", preco:50e9,      bonus:50e6,    tipo:"click", maxLevel:5 },
+  { id:"starblade",nome:"🌠 Lâmina Estelar",       preco:500e9,     bonus:500e6,   tipo:"click", maxLevel:4 },
+  { id:"voidring", nome:"🌀 Anel do Vazio",         preco:10e12,     bonus:5e9,     tipo:"click", maxLevel:3 },
+  // TIER 3 — EXORBITANTE
+  { id:"godhand",  nome:"✋ Mão de Deus",           preco:1e15,      bonus:100e9,   tipo:"click", maxLevel:3 },
+  { id:"cosmicfist",nome:"💥 Soco Cósmico",        preco:50e15,     bonus:5e12,    tipo:"click", maxLevel:2 },
+  { id:"univclick",nome:"♾️ Clique Universal",     preco:1e18,      bonus:100e12,  tipo:"click", maxLevel:2 },
+  { id:"bigbangfist",nome:"💫 Punho Big Bang",     preco:1e21,      bonus:1e15,    tipo:"click", maxLevel:1 },
+];
+
+// AUTO upgrades
+const autoUpgrades = [
+  { id:"dancer",   nome:"🕴️ Dançarino",           preco:100,       bonus:2,       tipo:"auto", maxLevel:20 },
+  { id:"dancer2",  nome:"💃 Dançarina",             preco:600,       bonus:10,      tipo:"auto", maxLevel:20 },
+  { id:"dj",       nome:"🎧 DJ Profissional",       preco:3000,      bonus:50,      tipo:"auto", maxLevel:15 },
+  { id:"prod",     nome:"🎼 Produtor Musical",      preco:15000,     bonus:250,     tipo:"auto", maxLevel:15 },
+  { id:"backing",  nome:"🎤 Backing Vocal",         preco:70000,     bonus:1000,    tipo:"auto", maxLevel:10 },
+  { id:"limo",     nome:"🚘 Limusine",              preco:300000,    bonus:5000,    tipo:"auto", maxLevel:10 },
+  { id:"jet",      nome:"🛩️ Jato Particular",      preco:2e6,       bonus:40000,   tipo:"auto", maxLevel:8 },
+  { id:"rocket",   nome:"🚀 Nave Moonwalk",         preco:20e6,      bonus:400000,  tipo:"auto", maxLevel:8 },
+  { id:"label",    nome:"🏢 Gravadora",             preco:150e6,     bonus:4e6,     tipo:"auto", maxLevel:5 },
+  { id:"tour",     nome:"🌎 Turnê Mundial",         preco:800e6,     bonus:40e6,    tipo:"auto", maxLevel:5 },
+  { id:"corp",     nome:"🏙️ Corporação MWalk",     preco:5e9,       bonus:400e6,   tipo:"auto", maxLevel:5 },
+  { id:"imp",      nome:"🌐 Império Financeiro",    preco:30e9,      bonus:4e9,     tipo:"auto", maxLevel:4 },
+  { id:"galaxy",   nome:"🌌 Galáxia MWalk",         preco:200e9,     bonus:40e9,    tipo:"auto", maxLevel:4 },
+  { id:"universe", nome:"🌀 Universo Moonwalk",      preco:2e12,      bonus:400e9,   tipo:"auto", maxLevel:3 },
+  // TIER 2
+  { id:"starfact",  nome:"🌟 Fábrica Estelar",      preco:20e12,     bonus:5e12,    tipo:"auto", maxLevel:3 },
+  { id:"gdim",      nome:"🌠 Dimensão Dourada",     preco:500e12,    bonus:50e12,   tipo:"auto", maxLevel:3 },
+  { id:"cosmicent", nome:"🛸 Empresa Cósmica",      preco:10e15,     bonus:500e12,  tipo:"auto", maxLevel:2 },
+  { id:"godcorp",   nome:"👼 Corporação Divina",    preco:500e15,    bonus:10e15,   tipo:"auto", maxLevel:2 },
+  // TIER 3 — EXORBITANTE
+  { id:"omnibank",  nome:"🏦 Banco Omniversal",     preco:50e18,     bonus:100e15,  tipo:"auto", maxLevel:2 },
+  { id:"infinitef", nome:"♾️ Fábrica do Infinito",  preco:5e21,      bonus:1e18,    tipo:"auto", maxLevel:1 },
+  { id:"bigbangauto",nome:"💥 Máquina Big Bang",    preco:1e24,      bonus:10e18,   tipo:"auto", maxLevel:1 },
+];
+
+// MINE upgrades (gem auto)
+const mineUpgrades = [
+  { id:"mine1",    nome:"⛏️ Mina Rasa",            preco:1e9,       bonus:1,       tipo:"mine", maxLevel:10 },
+  { id:"mine2",    nome:"🏔️ Mina Industrial",      preco:10e9,      bonus:10,      tipo:"mine", maxLevel:10 },
+  { id:"mine3",    nome:"🌋 Mina Vulcânica",        preco:100e9,     bonus:100,     tipo:"mine", maxLevel:8 },
+  { id:"mine4",    nome:"💎 Mina de Cristal",       preco:2e12,      bonus:1000,    tipo:"mine", maxLevel:5 },
+  { id:"mine5",    nome:"🌌 Mina Dimensional",      preco:50e12,     bonus:10000,   tipo:"mine", maxLevel:5 },
+  { id:"mine6",    nome:"⚡ Mina Quântica",         preco:1e15,      bonus:100000,  tipo:"mine", maxLevel:4 },
+  { id:"mine7",    nome:"🌠 Mina Estelar",          preco:100e15,    bonus:1e6,     tipo:"mine", maxLevel:3 },
+  { id:"mine8",    nome:"♾️ Mina do Infinito",      preco:1e18,      bonus:10e6,    tipo:"mine", maxLevel:2 },
+];
+
+// ELITE upgrades (compra com gemas, dão boost enorme)
+const eliteUpgrades = [
+  { id:"el1",  nome:"🌟 Boost Lunar",        preco:500,      bonusClick:500,    bonusAuto:100,    maxLevel:10 },
+  { id:"el2",  nome:"⚡ Amplificador Neon",   preco:2000,     bonusClick:2000,   bonusAuto:500,    maxLevel:8 },
+  { id:"el3",  nome:"💥 Núcleo de Plasma",    preco:8000,     bonusClick:10000,  bonusAuto:2000,   maxLevel:6 },
+  { id:"el4",  nome:"🔮 Cristal Arcano",      preco:30000,    bonusClick:50000,  bonusAuto:10000,  maxLevel:5 },
+  { id:"el5",  nome:"👑 Trono Dourado",       preco:100000,   bonusClick:250000, bonusAuto:50000,  maxLevel:5 },
+  { id:"el6",  nome:"🌌 Singularidade",       preco:500000,   bonusClick:1e6,    bonusAuto:250000, maxLevel:4 },
+  { id:"el7",  nome:"🌠 Hiper Estrela",       preco:2e6,      bonusClick:5e6,    bonusAuto:1e6,    maxLevel:4 },
+  { id:"el8",  nome:"♾️ Loop Eterno",          preco:10e6,     bonusClick:25e6,   bonusAuto:5e6,    maxLevel:3 },
+  // TIER 2
+  { id:"el9",  nome:"🔥 Núcleo Infernal",     preco:100e6,    bonusClick:200e6,  bonusAuto:50e6,   maxLevel:3 },
+  { id:"el10", nome:"🌀 Vórtice Dimensional", preco:1e9,      bonusClick:2e9,    bonusAuto:500e6,  maxLevel:3 },
+  { id:"el11", nome:"🌋 Coração do Vulcão",   preco:20e9,     bonusClick:40e9,   bonusAuto:10e9,   maxLevel:2 },
+  { id:"el12", nome:"⚛️ Núcleo Quântico",     preco:500e9,    bonusClick:1e12,   bonusAuto:250e9,  maxLevel:2 },
+  // TIER 3 — EXORBITANTE (💎)
+  { id:"el13", nome:"🌠 Cristal Estelar",     preco:20e12,    bonusClick:50e12,  bonusAuto:10e12,  maxLevel:2 },
+  { id:"el14", nome:"👼 Fragmento Divino",    preco:1e15,     bonusClick:2e15,   bonusAuto:500e12, maxLevel:1 },
+  { id:"el15", nome:"♾️ Essência Infinita",   preco:100e15,   bonusClick:200e15, bonusAuto:50e15,  maxLevel:1 },
+  { id:"el16", nome:"💫 Alma do Cosmos",      preco:1e18,     bonusClick:2e18,   bonusAuto:500e15, maxLevel:1 },
+];
+
+// POWER UPGRADES — seção nova de powerups especiais com nível máximo
+// Cada powerup tem efeito único além de clique/auto
+const powerUpgrades = [
+  // === CLIQUE MULTIPLICADOR ===
+  { id:"pw1",  nome:"🎯 Mira Perfeita",       preco:1e6,     bonus:2,    tipo:"clickMult",  maxLevel:5,  desc:"×{b} multiplicador de clique" },
+  { id:"pw2",  nome:"⚡ Fúria do Relâmpago",  preco:50e6,    bonus:3,    tipo:"clickMult",  maxLevel:4,  desc:"×{b} multiplicador de clique" },
+  { id:"pw3",  nome:"🔥 Chama Divina",        preco:2e9,     bonus:5,    tipo:"clickMult",  maxLevel:3,  desc:"×{b} multiplicador de clique" },
+  { id:"pw4",  nome:"💥 Explosão Cósmica",    preco:100e9,   bonus:10,   tipo:"clickMult",  maxLevel:2,  desc:"×{b} multiplicador de clique" },
+  { id:"pw5",  nome:"♾️ Clique Infinito",      preco:10e12,   bonus:25,   tipo:"clickMult",  maxLevel:2,  desc:"×{b} multiplicador de clique" },
+  { id:"pw6",  nome:"🌌 Hyperclique",         preco:1e15,    bonus:50,   tipo:"clickMult",  maxLevel:1,  desc:"×{b} multiplicador de clique" },
+  { id:"pw7",  nome:"💫 Singularidade Clique",preco:500e15,  bonus:100,  tipo:"clickMult",  maxLevel:1,  desc:"×{b} multiplicador de clique" },
+  // === AUTO MULTIPLICADOR ===
+  { id:"pw8",  nome:"🏭 Overdrive Factory",   preco:5e6,     bonus:2,    tipo:"autoMult",   maxLevel:5,  desc:"×{b} multiplicador de auto/s" },
+  { id:"pw9",  nome:"🌀 Turbine",             preco:200e6,   bonus:3,    tipo:"autoMult",   maxLevel:4,  desc:"×{b} multiplicador de auto/s" },
+  { id:"pw10", nome:"🚀 Propulsão Máxima",    preco:10e9,    bonus:5,    tipo:"autoMult",   maxLevel:3,  desc:"×{b} multiplicador de auto/s" },
+  { id:"pw11", nome:"🛸 Motor Warp",          preco:500e9,   bonus:10,   tipo:"autoMult",   maxLevel:2,  desc:"×{b} multiplicador de auto/s" },
+  { id:"pw12", nome:"🌠 Turbina Estelar",     preco:50e12,   bonus:20,   tipo:"autoMult",   maxLevel:2,  desc:"×{b} multiplicador de auto/s" },
+  { id:"pw13", nome:"♾️ Motor do Infinito",   preco:5e15,    bonus:50,   tipo:"autoMult",   maxLevel:1,  desc:"×{b} multiplicador de auto/s" },
+  { id:"pw14", nome:"💫 Big Bang Engine",     preco:1e18,    bonus:100,  tipo:"autoMult",   maxLevel:1,  desc:"×{b} multiplicador de auto/s" },
+  // === GEM MULTIPLICADOR ===
+  { id:"pw15", nome:"💎 Veia de Cristal",     preco:1e12,    bonus:2,    tipo:"gemMult",    maxLevel:5,  desc:"×{b} gemas por segundo" },
+  { id:"pw16", nome:"💎 Nexus Dimensional",   preco:100e12,  bonus:5,    tipo:"gemMult",    maxLevel:3,  desc:"×{b} gemas por segundo" },
+  { id:"pw17", nome:"💎 Coração de Gema",     preco:10e15,   bonus:10,   tipo:"gemMult",    maxLevel:2,  desc:"×{b} gemas por segundo" },
+  { id:"pw18", nome:"💎 Alma de Diamante",    preco:1e18,    bonus:50,   tipo:"gemMult",    maxLevel:1,  desc:"×{b} gemas por segundo" },
+  // === GLOBAL BOOST (clique + auto + gems) ===
+  { id:"pw19", nome:"🌟 Bênção Global I",     preco:10e9,    bonus:1.5,  tipo:"globalMult", maxLevel:4,  desc:"×{b} TUDO (clique/auto/gem)" },
+  { id:"pw20", nome:"🌠 Bênção Global II",    preco:1e12,    bonus:2,    tipo:"globalMult", maxLevel:3,  desc:"×{b} TUDO (clique/auto/gem)" },
+  { id:"pw21", nome:"👑 Bênção Divina",       preco:100e12,  bonus:3,    tipo:"globalMult", maxLevel:2,  desc:"×{b} TUDO (clique/auto/gem)" },
+  { id:"pw22", nome:"♾️ Bênção do Infinito",  preco:50e15,   bonus:5,    tipo:"globalMult", maxLevel:2,  desc:"×{b} TUDO (clique/auto/gem)" },
+  { id:"pw23", nome:"💫 Bênção Absoluta",     preco:10e18,   bonus:10,   tipo:"globalMult", maxLevel:1,  desc:"×{b} TUDO (clique/auto/gem)" },
+];
+// Multipliers separados (não somados, multiplicados no momento da compra)
+let clickMultiplier = 1;
+let autoMultiplier  = 1;
+let gemMultiplier   = 1;
+
+// Inicializa campos base (preços e bônus originais para reset no prestígio)
+[...clickUpgrades, ...autoUpgrades, ...mineUpgrades, ...powerUpgrades].forEach(u => {
+  u._basePreco = u.preco;
+  u._baseBonus = u.bonus;
+  u._level     = 0;
+});
+eliteUpgrades.forEach(u => {
+  u._basePreco      = u.preco;
+  u._baseBonusClick = u.bonusClick;
+  u._baseBonusAuto  = u.bonusAuto;
+  u._level          = 0;
+});
+
+// CAIXAS — custam GEMAS (valores altos conforme importância)
+const boxItems = [
+  { id:"bSmall",   nome:"📦 Baú Pequeno",      preco:500,      gainMoney:5e3,      gainGems:0    },
+  { id:"bMedium",  nome:"🪙 Baú Médio",        preco:2000,     gainMoney:50e3,     gainGems:0    },
+  { id:"bLarge",   nome:"💰 Baú Grande",        preco:8000,     gainMoney:500e3,    gainGems:0    },
+  { id:"bHuge",    nome:"💎 Baú Enorme",        preco:30000,    gainMoney:5e6,      gainGems:500  },
+  { id:"bRoyal",   nome:"👑 Baú Real",          preco:100000,   gainMoney:50e6,     gainGems:2000 },
+  { id:"bCosmic",  nome:"🌌 Baú Cósmico",       preco:400000,   gainMoney:1e9,      gainGems:10000},
+  { id:"bGod",     nome:"😇 Baú Divino",        preco:1500000,  gainMoney:20e9,     gainGems:50000},
+  { id:"bBapho",   nome:"☠️ Baú Baphomet",      preco:6000000,  gainMoney:1e12,     gainGems:300000},
+];
+
+// COMPRAR CORINGA — custa gemas
+const jokerShopItems = [
+  { id:"jk1", nome:"🃏 Coringa Simples",  preco:50000,  qtd:1  },
+  { id:"jk2", nome:"🃏🃏 Pacote Duplo",   preco:90000,  qtd:2  },
+  { id:"jk3", nome:"🃏x5 Pacote Elite",   preco:200000, qtd:5  },
+  { id:"jk4", nome:"🃏x10 Pacote Lenda",  preco:350000, qtd:10 },
+];
+
+// COMBAT upgrades (aumentam combatPower — dano em inimigos)
+const combatUpgrades = [
+  { id:"cw1",  nome:"🗡️ Faca de Bolso",        preco:500,      bonus:1   },
+  { id:"cw2",  nome:"⚔️ Espada Básica",         preco:3000,     bonus:5   },
+  { id:"cw3",  nome:"🔨 Martelo de Guerra",      preco:15000,    bonus:20  },
+  { id:"cw4",  nome:"🪃 Bumerangue Mágico",      preco:60000,    bonus:80  },
+  { id:"cw5",  nome:"🏹 Arco Élfico",            preco:250000,   bonus:300 },
+  { id:"cw6",  nome:"🔱 Tridente do Abismo",     preco:1e6,      bonus:1200 },
+  { id:"cw7",  nome:"⚡ Cajado Relâmpago",       preco:5e6,      bonus:5000 },
+  { id:"cw8",  nome:"🌙 Sabre Lunar",            preco:25e6,     bonus:25000 },
+  { id:"cw9",  nome:"🔥 Lança Infernal",         preco:150e6,    bonus:150000 },
+  { id:"cw10", nome:"💀 Ceifadeira da Morte",    preco:1e9,      bonus:1e6 },
+  { id:"cw11", nome:"🌌 Espada Dimensional",     preco:10e9,     bonus:10e6 },
+  { id:"cw12", nome:"☀️ Lâmina Solar",           preco:100e9,    bonus:100e6 },
+  { id:"cw13", nome:"🌀 Fúria do Vórtice",       preco:1e12,     bonus:1e9 },
+  { id:"cw14", nome:"♾️ Arma do Infinito",        preco:50e12,    bonus:50e9 },
+  { id:"cw15", nome:"🌙 Moonblade FINAL",        preco:1e15,     bonus:1e12 },
+];
+
+// DEFENSE upgrades (reduzem % de roubo dos inimigos)
+let stealReduction = 0; // 0.0 a 0.9 (max 90% redução)
+const defenseUpgrades = [
+  { id:"df1", nome:"🛡️ Escudo de Madeira",   preco:2000,     reduce:0.05 },
+  { id:"df2", nome:"🛡️ Escudo de Ferro",     preco:20000,    reduce:0.08 },
+  { id:"df3", nome:"🛡️ Escudo de Aço",       preco:200000,   reduce:0.10 },
+  { id:"df4", nome:"🛡️ Armadura Completa",   preco:2e6,      reduce:0.12 },
+  { id:"df5", nome:"🛡️ Armadura de Titânio", preco:20e6,     reduce:0.15 },
+  { id:"df6", nome:"🛡️ Escudo Rúnico",       preco:200e6,    reduce:0.15 },
+  { id:"df7", nome:"🛡️ Barreira Mágica",     preco:2e9,      reduce:0.15 },
+  { id:"df8", nome:"🌌 Escudo Dimensional",   preco:50e9,     reduce:0.10 },
+];
+
+// SKILLS — habilidades ativas (custam gemas, destroem inimigos)
+let skillCooldowns = {}; // id -> timestamp último uso
+const skillItems = [
+  { id:"sk1", nome:"💣 Granada Moonwalk",    preco:5000,   cooldown:30,  fn: ()=>{ killAllNormal('💣'); } },
+  { id:"sk2", nome:"⚡ Raio Divino",         preco:20000,  cooldown:60,  fn: ()=>{ killAllEnemies('⚡'); } },
+  { id:"sk3", nome:"🌪️ Tornado de Giro",    preco:80000,  cooldown:45,  fn: ()=>{ killAllNormal('🌪️'); } },
+  { id:"sk4", nome:"🔥 Chama Eterna",        preco:300000, cooldown:90,  fn: ()=>{ killAllEnemies('🔥'); } },
+  { id:"sk5", nome:"🌌 Buraco Negro",        preco:1e6,    cooldown:120, fn: ()=>{ killAllEnemies('🌌'); } },
+];
+
+// Inicializa _base para combatUpgrades e defenseUpgrades
+combatUpgrades.forEach(u => { u._basePreco = u.preco; u._baseBonus = u.bonus; u._level = 0; u.maxLevel = u.maxLevel || 10; });
+defenseUpgrades.forEach(u => { u._bought = false; });
+
+function killAllNormal(fx) {
+  const toKill = [...enemies].filter(e => !e.isBoss && !e.dead);
+  toKill.forEach(e => killEnemy(e));
+  showPopup(`${fx} Todos os monstrinhos eliminados!`);
+}
+function killAllEnemies(fx) {
+  const toKill = [...enemies].filter(e => !e.dead);
+  toKill.forEach(e => killEnemy(e));
+  showPopup(`${fx} TODOS os inimigos eliminados!`);
+}
+
+// ACHIEVEMENTS
+const ACHIEVEMENTS = [
+  // Money
+  { id:"m1",   name:"🥉 Primeiros Passos",    check:()=>totalMoneyEarned>=100 },
+  { id:"m2",   name:"🥈 Mil Moedas",          check:()=>totalMoneyEarned>=1000 },
+  { id:"m3",   name:"🥇 Dez Mil",             check:()=>totalMoneyEarned>=10000 },
+  { id:"m4",   name:"💰 Cem Mil",             check:()=>totalMoneyEarned>=100000 },
+  { id:"m5",   name:"💰 Milionário",          check:()=>totalMoneyEarned>=1e6 },
+  { id:"m6",   name:"💰 Bilionário",          check:()=>totalMoneyEarned>=1e9 },
+  { id:"m7",   name:"💰 Trilionário",         check:()=>totalMoneyEarned>=1e12 },
+  { id:"m8",   name:"💰 Quadrilionário",      check:()=>totalMoneyEarned>=1e15 },
+  { id:"m9",   name:"💰 Impensável",          check:()=>totalMoneyEarned>=1e18 },
+  { id:"m10",  name:"💰 Infinito",            check:()=>totalMoneyEarned>=1e24 },
+  // Click power
+  { id:"c1",   name:"⚡ Clique x10",          check:()=>clickPower>=10 },
+  { id:"c2",   name:"⚡ Clique x100",         check:()=>clickPower>=100 },
+  { id:"c3",   name:"⚡ Clique x1000",        check:()=>clickPower>=1000 },
+  { id:"c4",   name:"⚡ Clique x1M",          check:()=>clickPower>=1e6 },
+  { id:"c5",   name:"⚡ Clique x1B",          check:()=>clickPower>=1e9 },
+  // Auto
+  { id:"a1",   name:"🏭 Auto 10/s",           check:()=>autoPower>=10 },
+  { id:"a2",   name:"🏭 Auto 1000/s",         check:()=>autoPower>=1000 },
+  { id:"a3",   name:"🏭 Auto 1M/s",           check:()=>autoPower>=1e6 },
+  { id:"a4",   name:"🏭 Auto 1B/s",           check:()=>autoPower>=1e9 },
+  { id:"a5",   name:"🏭 Auto 1T/s",           check:()=>autoPower>=1e12 },
+  // Gems
+  { id:"g1",   name:"💎 100 Gemas",           check:()=>diamonds>=100 },
+  { id:"g2",   name:"💎 10K Gemas",           check:()=>diamonds>=10000 },
+  { id:"g3",   name:"💎 1M Gemas",            check:()=>diamonds>=1e6 },
+  { id:"g4",   name:"💎 1B Gemas",            check:()=>diamonds>=1e9 },
+  { id:"g5",   name:"💎 1T Gemas",            check:()=>diamonds>=1e12 },
+  // Jokers
+  { id:"j1",   name:"🃏 Primeiro Coringa",    check:()=>jokers>=1 },
+  { id:"j2",   name:"🃏 5 Coringas",          check:()=>jokers>=5 },
+  { id:"j3",   name:"🃏 20 Coringas",         check:()=>jokers>=20 },
+  // Level
+  { id:"lv5",  name:"⭐ Nível 5",             check:()=>currentLevel>=5 },
+  { id:"lv10", name:"⭐ Nível 10",            check:()=>currentLevel>=10 },
+  { id:"lv25", name:"⭐ Nível 25",            check:()=>currentLevel>=25 },
+  { id:"lv50", name:"⭐ Nível 50",            check:()=>currentLevel>=50 },
+  { id:"lv75", name:"⭐ Nível 75",            check:()=>currentLevel>=75 },
+  { id:"lv100",name:"⭐ Nível 100! DEUS",     check:()=>currentLevel>=100 },
+  // Prestige
+  { id:"p1",   name:"🌟 Primeiro Prestígio",  check:()=>prestigeCount>=1 },
+  { id:"p5",   name:"🌟 5 Prestígios",        check:()=>prestigeCount>=5 },
+  { id:"p10",  name:"🌟 10 Prestígios",       check:()=>prestigeCount>=10 },
+  // Box
+  { id:"bx1",  name:"📦 Primeiro Baú",        check:()=>totalBoxesOpened>=1 },
+  { id:"bx10", name:"📦 10 Baús",             check:()=>totalBoxesOpened>=10 },
+  { id:"bx50", name:"📦 50 Baús",             check:()=>totalBoxesOpened>=50 },
+  // Exclusive
+  { id:"ex1",  name:"🃏 O Impossível",        exclusive:true, check:()=>false }, // só via findJoker
+  { id:"ex2",  name:"💜 Viciado",            exclusive:true, check:()=>totalMoneyEarned>=1e21 },
+  { id:"ex3",  name:"🌙 Deus do Moonwalk",   exclusive:true, check:()=>currentLevel>=100 },
+];
+
+let totalBoxesOpened = 0;
+let currentLevel = 1;
+
+// --- HELPERS ---
+function fmt(n) {
+  if (!isFinite(n)) return "∞";
+  if (n < 0) return "0";
+  const suffixes = [
+    [1e63,"Vigintillion"],[1e60,"Novemdecillion"],[1e57,"Octodecillion"],
+    [1e54,"Septemdecillion"],[1e51,"Sexdecillion"],[1e48,"Quindecillion"],
+    [1e45,"Quattuordecillion"],[1e42,"Tredecillion"],[1e39,"Duodecillion"],
+    [1e36,"Undecillion"],[1e33,"Decillion"],[1e30,"Nonillion"],
+    [1e27,"Octillion"],[1e24,"Septillion"],[1e21,"Sextillion"],
+    [1e18,"Quintillion"],[1e15,"Quadrilhão"],[1e12,"Trilhão"],
+    [1e9,"Bilhão"],[1e6,"Milhão"],[1e3,"Mil"]
+  ];
+  for (const [val, name] of suffixes) {
+    if (n >= val) return (n/val).toFixed(2) + " " + name;
+  }
+  return Math.floor(n).toString();
+}
+
+function showPopup(text, type='') {
+  const p = document.createElement('div');
+  p.className = 'popup' + (type ? ' '+type : '');
+  p.textContent = text;
+  document.body.appendChild(p);
+  setTimeout(() => p.remove(), 3100);
+}
+
+function spawnFloat(amount) {
+  const michael = document.getElementById('michael');
+  const r = michael.getBoundingClientRect();
+  const d = document.createElement('div');
+  d.className = 'float-money';
+  d.textContent = '+' + fmt(amount);
+  d.style.left = (r.left + r.width/2 - 30 + (Math.random()-0.5)*60) + 'px';
+  d.style.top  = (r.top + 20) + 'px';
+  document.body.appendChild(d);
+  setTimeout(() => d.remove(), 1000);
+}
+
+function addDancer() {
+  const d = document.createElement('div');
+  d.className = 'dancer';
+  d.textContent = ['🕴️','💃','🕺'][Math.floor(Math.random()*3)];
+  d.style.left = Math.random()*90+'%';
+  d.style.top  = Math.random()*80+'%';
+  d.style.fontSize = (30+Math.random()*35)+'px';
+  d.style.animationDuration = (2+Math.random()*2.5)+'s';
+  document.getElementById('dancers').appendChild(d);
+  // limit dancers
+  const dancers = document.getElementById('dancers');
+  while(dancers.children.length > 80) dancers.removeChild(dancers.firstChild);
+}
+
+function showEvent(emoji, title, sub) {
+  const ev = document.createElement('div');
+  ev.className = 'event-banner';
+  ev.innerHTML = `<div class="ev-emoji">${emoji}</div><div class="ev-title">${title}</div><div class="ev-sub">${sub}</div>`;
+  document.body.appendChild(ev);
+  setTimeout(() => ev.remove(), 4200);
+}
+
+// --- UPDATE UI ---
+function updateUI() {
+  document.getElementById('statMoney').textContent    = fmt(money);
+  document.getElementById('statDiamonds').textContent = fmt(diamonds);
+  document.getElementById('statJokers').textContent   = jokers;
+  document.getElementById('statClick').textContent    = fmt(clickPower);
+  document.getElementById('statAuto').textContent     = fmt(autoPower);
+  document.getElementById('statGemAuto').textContent  = fmt(gemPower);
+  document.getElementById('statCombat').textContent   = fmt(combatPower);
+  document.getElementById('jokerCount').textContent   = jokers;
+  document.getElementById('prestigeCount').textContent = prestigeCount;
+  document.getElementById('totalMoneyDisplay').textContent = fmt(totalMoneyEarned);
+  document.getElementById('prestigeBonus').textContent = fmt(prestigeBonus);
+
+  // Level
+  let lvlData = LEVELS[0];
+  let nextData = LEVELS[1];
+  let lvlIdx = 0;
+  for (let i = 0; i < LEVELS.length; i++) {
+    if (totalMoneyEarned >= LEVELS[i][0]) {
+      lvlData = LEVELS[i];
+      lvlIdx = i;
+      nextData = LEVELS[i+1] || null;
+    }
+  }
+  currentLevel = Math.min(100, lvlIdx + 1);
+  document.getElementById('levelName').textContent = lvlData[1] + ' ' + lvlData[2];
+  document.getElementById('levelNum').textContent  = currentLevel;
+  document.getElementById('michael').textContent   = lvlData[1];
+
+  // Level bar
+  let pct = 0;
+  if (nextData && nextData[0] !== Infinity) {
+    const progress = totalMoneyEarned - lvlData[0];
+    const needed   = nextData[0] - lvlData[0];
+    pct = Math.min(100, (progress/needed)*100);
+  } else {
+    pct = 100;
+  }
+  document.getElementById('levelBar').style.width = pct + '%';
+
+  // Update shop affordability
+  updateShopAffordability();
+  // Check achievements
+  checkAchievements();
+}
+
+function updateShopAffordability() {
+  document.querySelectorAll('.shop-item').forEach(btn => {
+    const cost  = parseFloat(btn.dataset.cost  || 0);
+    const ctype = btn.dataset.ctype || 'money';
+    const wallet = ctype === 'gems' ? diamonds : money;
+    if (wallet < cost) btn.classList.add('cant-afford');
+    else               btn.classList.remove('cant-afford');
+  });
+}
+
+// --- SHOP RENDER ---
+function renderShops() {
+  renderClickShop();
+  renderAutoShop();
+  renderEliteShop();
+  renderCombatShop();
+  renderCaixasShop();
+  renderJokerShop();
+  renderPowerShop();
+}
+
+function makeItemBtn(item, onClick) {
+  const btn = document.createElement('button');
+  btn.className = 'shop-item';
+  btn.dataset.cost  = item._cost;
+  btn.dataset.ctype = item._ctype || 'money';
+  const lvl = item._level || 0;
+  const maxLvl = item.maxLevel || 999;
+  const isMaxed = lvl >= maxLvl;
+  const lvlColor = isMaxed ? '#ff4444' : lvl > 0 ? '#00ff88' : '#666';
+  const lvlBadge = maxLvl < 999
+    ? `<div style="font-size:10px;color:${lvlColor};font-weight:700;margin-bottom:3px;">Nv ${lvl}/${maxLvl}${isMaxed?' 🔒 MAX':''}</div>`
+    : '';
+  btn.innerHTML = `
+    <div class="item-name">${item.nome}</div>
+    ${lvlBadge}
+    <div class="item-bonus">${item._bonusText}</div>
+    <div class="item-price ${item._ctype==='gems'?'gem-price':'gold-price'}">${item._ctype==='gems'?'💎':'💰'} ${isMaxed ? 'MAX' : fmt(item._cost)}</div>
+  `;
+  if (isMaxed) {
+    btn.classList.add('cant-afford');
+    btn.style.opacity = '0.4';
+    btn.style.cursor = 'not-allowed';
+    btn.onclick = () => showPopup(`🔒 ${item.nome} já está no nível máximo!`);
+  } else {
+    btn.onclick = onClick;
+  }
+  return btn;
+}
+
+function renderClickShop() {
+  const el = document.getElementById('shopClick');
+  el.innerHTML = '';
+  clickUpgrades.forEach(item => {
+    item._cost      = item.preco;
+    item._ctype     = 'money';
+    item._bonusText = `⚡ +${fmt(item.bonus)} clique`;
+    const btn = makeItemBtn(item, () => buyClickUpgrade(item));
+    el.appendChild(btn);
+  });
+}
+
+function renderAutoShop() {
+  const elAuto  = document.getElementById('shopAuto');
+  const elMines = document.getElementById('shopMines');
+  elAuto.innerHTML  = '';
+  elMines.innerHTML = '';
+  autoUpgrades.forEach(item => {
+    item._cost      = item.preco;
+    item._ctype     = 'money';
+    item._bonusText = `🏭 +${fmt(item.bonus)}/s`;
+    const btn = makeItemBtn(item, () => buyAutoUpgrade(item));
+    elAuto.appendChild(btn);
+  });
+  mineUpgrades.forEach(item => {
+    item._cost      = item.preco;
+    item._ctype     = 'money';
+    item._bonusText = `💎 +${fmt(item.bonus)} gema/s`;
+    const btn = makeItemBtn(item, () => buyMineUpgrade(item));
+    elMines.appendChild(btn);
+  });
+}
+
+function renderEliteShop() {
+  const el = document.getElementById('shopElite');
+  el.innerHTML = '';
+  eliteUpgrades.forEach(item => {
+    item._cost      = item.preco;
+    item._ctype     = 'gems';
+    item._bonusText = `⚡ +${fmt(item.bonusClick)} clique · 🏭 +${fmt(item.bonusAuto)}/s`;
+    const btn = makeItemBtn(item, () => buyEliteUpgrade(item));
+    btn.classList.add('box-item');
+    el.appendChild(btn);
+  });
+}
+
+function renderCaixasShop() {
+  const el = document.getElementById('shopCaixas');
+  el.innerHTML = '';
+  boxItems.forEach(item => {
+    let bonusTxt = `💰 +${fmt(item.gainMoney)}`;
+    if (item.gainGems > 0) bonusTxt += ` · 💎 +${fmt(item.gainGems)}`;
+    bonusTxt += ' · 1% Coringa';
+    item._cost      = item.preco;
+    item._ctype     = 'gems';
+    item._bonusText = bonusTxt;
+    const btn = makeItemBtn(item, () => buyBox(item));
+    btn.classList.add('box-item');
+    el.appendChild(btn);
+  });
+}
+
+function renderPowerShop() {
+  const types = [
+    { tipo:'clickMult', elId:'shopPowerClick' },
+    { tipo:'autoMult',  elId:'shopPowerAuto'  },
+    { tipo:'gemMult',   elId:'shopPowerGem'   },
+    { tipo:'globalMult',elId:'shopPowerGlobal'},
+  ];
+  types.forEach(({ tipo, elId }) => {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    el.innerHTML = '';
+    powerUpgrades.filter(u => u.tipo === tipo).forEach(item => {
+      item._cost  = item.preco;
+      item._ctype = 'money';
+      const lvl = item._level || 0;
+      const maxLvl = item.maxLevel || 1;
+      const descTxt = item.desc.replace('{b}', item.bonus);
+      item._bonusText = `${descTxt}`;
+      const btn = makeItemBtn(item, () => buyPowerUpgrade(item));
+      el.appendChild(btn);
+    });
+  });
+}
+
+function renderJokerShop() {
+  const el = document.getElementById('shopJoker');
+  el.innerHTML = '';
+  jokerShopItems.forEach(item => {
+    item._cost      = item.preco;
+    item._ctype     = 'gems';
+    item._bonusText = `🃏 +${item.qtd} Coringa(s)`;
+    const btn = makeItemBtn(item, () => buyJoker(item));
+    el.appendChild(btn);
+  });
+}
+
+function renderCombatShop() {
+  // --- Armas (combatPower) ---
+  const elC = document.getElementById('shopCombat');
+  if (elC) {
+    elC.innerHTML = '';
+    combatUpgrades.forEach(item => {
+      item._cost      = item.preco;
+      item._ctype     = 'money';
+      item._bonusText = `⚔️ +${fmt(item.bonus)} combate`;
+      const btn = makeItemBtn(item, () => buyCombatUpgrade(item));
+      elC.appendChild(btn);
+    });
+  }
+
+  // --- Defesas ---
+  const elD = document.getElementById('shopDefense');
+  if (elD) {
+    elD.innerHTML = '';
+    defenseUpgrades.forEach(item => {
+      const alreadyBought = item._bought || false;
+      const pct = Math.round(item.reduce * 100);
+      item._cost      = item.preco;
+      item._ctype     = 'money';
+      item._bonusText = alreadyBought
+        ? `✅ Já comprado — redução ativa`
+        : `🛡️ -${pct}% roubo de inimigos`;
+      const btn = makeItemBtn(item, () => buyDefenseUpgrade(item));
+      if (alreadyBought) btn.classList.add('cant-afford');
+      elD.appendChild(btn);
+    });
+  }
+
+  // --- Habilidades ---
+  const elS = document.getElementById('shopSkills');
+  if (elS) {
+    elS.innerHTML = '';
+    skillItems.forEach(item => {
+      const now     = Date.now();
+      const lastUse = skillCooldowns[item.id] || 0;
+      const cdLeft  = Math.max(0, Math.ceil((lastUse + item.cooldown * 1000 - now) / 1000));
+      item._cost      = item.preco;
+      item._ctype     = 'gems';
+      item._bonusText = cdLeft > 0 ? `⏳ Cooldown: ${cdLeft}s` : `✨ Pronto para usar!`;
+      const btn = makeItemBtn(item, () => useSkill(item));
+      if (cdLeft > 0) btn.classList.add('cant-afford');
+      elS.appendChild(btn);
+    });
+    // Refresh cooldowns every second while tab is active
+    setTimeout(() => { if (currentTab === 'combat') renderCombatShop(); }, 1000);
+  }
+}
+
+// --- PURCHASES ---
+function buyClickUpgrade(item) {
+  if ((item._level||0) >= (item.maxLevel||999)) { showPopup(`🔒 Nível máximo atingido!`); return; }
+  if (money < item.preco) { showPopup('💸 Moedas insuficientes!'); return; }
+  money -= item.preco;
+  clickPower += item.bonus;
+  item._level = (item._level||0) + 1;
+  item.bonus  = Math.floor(item.bonus  * 2.2);
+  item.preco  = Math.floor(item.preco  * 1.8);
+  showPopup(`⚡ ${item.nome} Nv${item._level}!`);
+  renderClickShop();
+  updateUI();
+  saveGame();
+}
+
+function buyAutoUpgrade(item) {
+  if ((item._level||0) >= (item.maxLevel||999)) { showPopup(`🔒 Nível máximo atingido!`); return; }
+  if (money < item.preco) { showPopup('💸 Moedas insuficientes!'); return; }
+  money -= item.preco;
+  autoPower += item.bonus;
+  item._level = (item._level||0) + 1;
+  item.bonus  = Math.floor(item.bonus  * 2.2);
+  item.preco  = Math.floor(item.preco  * 1.8);
+  addDancer();
+  showPopup(`🏭 ${item.nome} Nv${item._level}!`);
+  renderAutoShop();
+  updateUI();
+  saveGame();
+}
+
+function buyMineUpgrade(item) {
+  if ((item._level||0) >= (item.maxLevel||999)) { showPopup(`🔒 Nível máximo atingido!`); return; }
+  if (money < item.preco) { showPopup('💸 Moedas insuficientes!'); return; }
+  money -= item.preco;
+  gemPower += item.bonus;
+  item._level = (item._level||0) + 1;
+  item.bonus  = Math.floor(item.bonus  * 2.2);
+  item.preco  = Math.floor(item.preco  * 1.8);
+  showPopup(`💎 ${item.nome} Nv${item._level}!`);
+  renderAutoShop();
+  updateUI();
+  saveGame();
+}
+
+function buyEliteUpgrade(item) {
+  if ((item._level||0) >= (item.maxLevel||999)) { showPopup(`🔒 Nível máximo atingido!`); return; }
+  if (diamonds < item.preco) { showPopup('💎 Gemas insuficientes!', 'gem'); return; }
+  diamonds -= item.preco;
+  clickPower += item.bonusClick;
+  autoPower  += item.bonusAuto;
+  item._level = (item._level||0) + 1;
+  item.bonusClick = Math.floor(item.bonusClick * 2);
+  item.bonusAuto  = Math.floor(item.bonusAuto  * 2);
+  item.preco      = Math.floor(item.preco      * 2.5);
+  showPopup(`👑 ${item.nome} Nv${item._level} ativado!`, 'achievement');
+  renderEliteShop();
+  updateUI();
+  saveGame();
+}
+
+function buyCombatUpgrade(item) {
+  if ((item._level||0) >= (item.maxLevel||999)) { showPopup(`🔒 Nível máximo atingido!`); return; }
+  if (money < item.preco) { showPopup('💸 Moedas insuficientes!'); return; }
+  money -= item.preco;
+  combatPower += item.bonus;
+  item._level = (item._level||0) + 1;
+  item.bonus = Math.floor(item.bonus * 2.5);
+  item.preco = Math.floor(item.preco * 2.0);
+  showPopup(`⚔️ ${item.nome} Nv${item._level}!`);
+  renderCombatShop();
+  updateUI();
+  saveGame();
+}
+
+function buyPowerUpgrade(item) {
+  if ((item._level||0) >= (item.maxLevel||999)) { showPopup(`🔒 ${item.nome} já está no nível máximo!`); return; }
+  if (money < item.preco) { showPopup('💸 Moedas insuficientes!'); return; }
+  money -= item.preco;
+  item._level = (item._level||0) + 1;
+  const mult = item.bonus;
+  if (item.tipo === 'clickMult') {
+    clickPower = Math.floor(clickPower * mult);
+    showPopup(`🎯 ${item.nome} Nv${item._level}! Clique ×${mult}!`, 'achievement');
+  } else if (item.tipo === 'autoMult') {
+    autoPower = Math.floor(autoPower * mult);
+    showPopup(`🏭 ${item.nome} Nv${item._level}! Auto ×${mult}!`, 'achievement');
+  } else if (item.tipo === 'gemMult') {
+    gemPower = Math.floor(gemPower * mult);
+    showPopup(`💎 ${item.nome} Nv${item._level}! Gem ×${mult}!`, 'gem');
+  } else if (item.tipo === 'globalMult') {
+    clickPower = Math.floor(clickPower * mult);
+    autoPower  = Math.floor(autoPower  * mult);
+    gemPower   = Math.floor(gemPower   * mult);
+    showEvent('🌟', `${item.nome}!`, `TUDO ×${mult}! Poder absurdo!`);
+  }
+  // Preço escala muito mais agressivamente nos power ups
+  item.preco = Math.floor(item.preco * 3.5);
+  renderPowerShop();
+  updateUI();
+  saveGame();
+}
+
+function buyBox(item) {
+  if (diamonds < item.preco) { showPopup('💎 Gemas insuficientes para abrir este baú!', 'gem'); return; }
+  diamonds -= item.preco;
+  totalBoxesOpened++;
+
+  // 0.3% chance de coringa (muito raro — só baús ou compra direta)
+  if (Math.random() < 0.003) {
+    jokers++;
+    showPopup('🃏 CORINGA ENCONTRADO no Baú!', 'achievement');
+    unlockAch('ex1');
+    updateUI();
+    saveGame();
+    return;
+  }
+
+  money         += item.gainMoney;
+  totalMoneyEarned += item.gainMoney;
+  diamonds      += item.gainGems;
+  let msg = `📦 +${fmt(item.gainMoney)} moedas`;
+  if (item.gainGems > 0) msg += ` +${fmt(item.gainGems)} gemas`;
+  showPopup(msg);
+  updateUI();
+  saveGame();
+}
+
+function buyJoker(item) {
+  if (diamonds < item.preco) { showPopup('💎 Gemas insuficientes!', 'gem'); return; }
+  diamonds -= item.preco;
+  jokers += item.qtd;
+  showPopup(`🃏 +${item.qtd} Coringa(s)!`);
+  updateUI();
+  saveGame();
+}
+
+function buyDefenseUpgrade(item) {
+  if (item._bought) { showPopup('🛡️ Já comprado!'); return; }
+  if (money < item.preco) { showPopup('💸 Moedas insuficientes!'); return; }
+  money -= item.preco;
+  item._bought = true;
+  stealReduction = Math.min(0.90, stealReduction + item.reduce);
+  showPopup(`🛡️ ${item.nome}! Roubo reduzido em ${Math.round(item.reduce*100)}%`);
+  renderCombatShop();
+  updateUI();
+  saveGame();
+}
+
+function useSkill(item) {
+  const now = Date.now();
+  const lastUse = skillCooldowns[item.id] || 0;
+  const cdLeft = Math.max(0, Math.ceil((lastUse + item.cooldown * 1000 - now) / 1000));
+  if (cdLeft > 0) { showPopup(`⏳ Aguarde ${cdLeft}s!`); return; }
+  if (diamonds < item.preco) { showPopup('💎 Gemas insuficientes!', 'gem'); return; }
+  diamonds -= item.preco;
+  skillCooldowns[item.id] = now;
+  item.fn();
+  renderCombatShop();
+  updateUI();
+  saveGame();
+}
+
+function useJoker() {
+  if (jokers <= 0) { showPopup('Sem Coringas! Abra baús ou compre.'); return; }
+  jokers--;
+  if (Math.random() < 0.5) {
+    money         += 10e9;
+    totalMoneyEarned += 10e9;
+    showPopup('🃏 OURO! +10 Bilhões de Moedas!');
+  } else {
+    diamonds += 10e9;
+    showPopup('🃏 GEMAS! +10 Bilhões de Gemas!', 'gem');
+  }
+  updateUI();
+  saveGame();
+}
+
+// --- PRESTIGE ---
+function prestige() {
+  if (totalMoneyEarned < 1e9) {
+    showPopup('❌ Precisa de 1 Bilhão de moedas ganhas no total!');
+    return;
+  }
+  if (!confirm(`🌟 PRESTÍGIO — Confirmar?\n\nTUDO será resetado:\n• Moedas, Gemas, Coringas\n• Todos os upgrades da loja\n• Inimigos, Dançarinos\n• Combate e Defesas\n\nVocê ganhará bônus PERMANENTE de clique.\nPrestígio atual: ${prestigeCount}`)) return;
+
+  const gain = Math.floor(Math.log10(totalMoneyEarned + 1));
+  prestigeBonus += gain;
+  prestigeCount++;
+
+  // === RESET COMPLETO ===
+  money            = 0;
+  diamonds         = 0;
+  jokers           = 0;
+  autoPower        = 0;
+  gemPower         = 0;
+  totalMoneyEarned = 0;
+  combatPower      = 1;
+  stealReduction   = 0;
+  killCount        = 0;
+  bossKillCount    = 0;
+  totalBoxesOpened = 0;
+  clickPower       = 1 + prestigeBonus;
+  skillCooldowns   = {};
+
+  // Limpa inimigos da tela
+  enemies.forEach(e => { if (e.el && e.el.parentNode) e.el.remove(); });
+  enemies  = [];
+  bossActive = false;
+  hordeActive = false;
+  if (hordeSpawnTimer) clearInterval(hordeSpawnTimer);
+  hordeRemaining = 0;
+
+  // Limpa dançarinos
+  const dancersEl = document.getElementById('dancers');
+  if (dancersEl) dancersEl.innerHTML = '';
+
+  // Reseta compras e preços de todos os upgrades para base
+  clickUpgrades .forEach(u => { u.preco = u._basePreco; u.bonus = u._baseBonus; u._level = 0; });
+  autoUpgrades  .forEach(u => { u.preco = u._basePreco; u.bonus = u._baseBonus; u._level = 0; });
+  mineUpgrades  .forEach(u => { u.preco = u._basePreco; u.bonus = u._baseBonus; u._level = 0; });
+  eliteUpgrades .forEach(u => { u.preco = u._basePreco; u.bonusClick = u._baseBonusClick; u.bonusAuto = u._baseBonusAuto; u._level = 0; });
+  combatUpgrades.forEach(u => { u.preco = u._basePreco; u.bonus = u._baseBonus; u._level = 0; });
+  defenseUpgrades.forEach(u => { u._bought = false; });
+  powerUpgrades .forEach(u => { u.preco = u._basePreco; u.bonus = u._baseBonus; u._level = 0; });
+
+  showEvent('🌟', 'PRESTÍGIO!', `+${gain} bônus permanente de clique · Total: ${prestigeBonus}`);
+  renderShops();
+  updateUI();
+  saveGame();
+}
+
+// --- ACHIEVEMENTS ---
+function unlockAch(id) {
+  if (unlockedAchs.has(id)) return;
+  const ach = ACHIEVEMENTS.find(a => a.id === id);
+  if (!ach) return;
+  unlockedAchs.add(id);
+  showPopup('🏆 ' + ach.name, 'achievement');
+  renderAchievements();
+  saveGame();
+}
+
+function checkAchievements() {
+  ACHIEVEMENTS.forEach(ach => {
+    if (!unlockedAchs.has(ach.id) && !ach.exclusive && ach.check && ach.check()) {
+      unlockAch(ach.id);
+    }
+  });
+}
+
+function renderAchievements() {
+  const el = document.getElementById('achievementsGrid');
+  el.innerHTML = '';
+  let count = 0;
+  ACHIEVEMENTS.forEach(ach => {
+    const unlocked = unlockedAchs.has(ach.id);
+    if (unlocked) count++;
+    const card = document.createElement('div');
+    card.className = 'achievement-card' + (ach.exclusive?' exclusive':'') + (unlocked?'':' locked');
+    card.textContent = (unlocked ? '' : '🔒 ') + ach.name;
+    el.appendChild(card);
+  });
+  document.getElementById('achCount').textContent = count;
+}
+
+// --- RANDOM EVENTS ---
+function triggerRandomEvent() {
+  const roll = Math.random();
+  if (roll < 0.35) {
+    const gain = Math.max(100, money * 0.08);
+    money += gain;
+    totalMoneyEarned += gain;
+    showEvent('💰','Chuva de Dinheiro!','Você ganhou '+fmt(gain)+' moedas!');
+    updateUI();
+  } else if (roll < 0.65) {
+    const gain = Math.max(50, diamonds * 0.05 + 10);
+    diamonds += gain;
+    showEvent('💎','Tempestade de Gemas!','Você ganhou '+fmt(gain)+' gemas!');
+    updateUI();
+  } else if (roll < 0.85) {
+    const mult = 2 + Math.random()*3;
+    clickPower = Math.floor(clickPower * mult);
+    autoPower  = Math.floor(autoPower  * mult);
+    showEvent('👑','Michael Supremo!','Poder multiplicado por '+mult.toFixed(1)+'x por 10s!');
+    updateUI();
+    setTimeout(()=>{ updateUI(); },10000);
+  } else {
+    // Bônus de moedas extra
+    const gain = Math.max(1000, money * 0.15);
+    money += gain;
+    totalMoneyEarned += gain;
+    showEvent('🌟','Bênção do Moonwalk!','Você ganhou '+fmt(gain)+' moedas extras!');
+    updateUI();
+  }
+  // Coringa NÃO aparece em eventos aleatórios — só em baús ou comprando
+}
+
+// --- TABS ---
+function setTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.nav-tab').forEach((b,i) => {
+    b.classList.remove('active');
+    if (b.getAttribute('onclick') === `setTab('${tab}')`) b.classList.add('active');
+  });
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+tab).classList.add('active');
+  if (tab === 'achievements') renderAchievements();
+}
+
+// --- SAVE / LOAD ---
+function saveGame() {
+  try {
+    const data = {
+      money, diamonds, jokers, clickPower, autoPower, gemPower, combatPower, stealReduction,
+      totalMoneyEarned, prestigeCount, prestigeBonus, soundOn,
+      totalBoxesOpened,
+      unlockedAchs: [...unlockedAchs],
+      clickUpgrades: clickUpgrades.map(u=>({preco:u.preco,bonus:u.bonus,_level:u._level||0})),
+      autoUpgrades:  autoUpgrades .map(u=>({preco:u.preco,bonus:u.bonus,_level:u._level||0})),
+      mineUpgrades:  mineUpgrades .map(u=>({preco:u.preco,bonus:u.bonus,_level:u._level||0})),
+      eliteUpgrades: eliteUpgrades.map(u=>({preco:u.preco,bonusClick:u.bonusClick,bonusAuto:u.bonusAuto,_level:u._level||0})),
+      combatUpgrades:combatUpgrades.map(u=>({preco:u.preco,bonus:u.bonus,_level:u._level||0})),
+      powerUpgrades: powerUpgrades .map(u=>({preco:u.preco,_level:u._level||0})),
+      defenseUpgrades:defenseUpgrades.map(u=>({_bought:u._bought||false})),
+    };
+    localStorage.setItem('mwDeluxe', JSON.stringify(data));
+    const dot = document.getElementById('saveDot');
+    dot.classList.add('saving');
+    dot.textContent = '💾 Salvo!';
+    setTimeout(()=>{ dot.classList.remove('saving'); dot.textContent='💾 Auto-save'; }, 1500);
+  } catch(e) {}
+}
+
+function loadGame() {
+  try {
+    const raw = localStorage.getItem('mwDeluxe');
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    money            = d.money            || 0;
+    diamonds         = d.diamonds         || 0;
+    jokers           = d.jokers           || 0;
+    clickPower       = d.clickPower       || 1;
+    autoPower        = d.autoPower        || 0;
+    gemPower         = d.gemPower         || 0;
+    combatPower      = d.combatPower      || 1;
+    stealReduction   = d.stealReduction   || 0;
+    totalMoneyEarned = d.totalMoneyEarned || 0;
+    prestigeCount    = d.prestigeCount    || 0;
+    prestigeBonus    = d.prestigeBonus    || 0;
+    soundOn          = d.soundOn !== false;
+    totalBoxesOpened = d.totalBoxesOpened || 0;
+    unlockedAchs     = new Set(d.unlockedAchs || []);
+    if (d.clickUpgrades)  d.clickUpgrades .forEach((s,i)=>{ if(clickUpgrades[i]) {clickUpgrades[i].preco=s.preco;clickUpgrades[i].bonus=s.bonus;clickUpgrades[i]._level=s._level||0;} });
+    if (d.autoUpgrades)   d.autoUpgrades  .forEach((s,i)=>{ if(autoUpgrades[i])  {autoUpgrades[i].preco=s.preco;autoUpgrades[i].bonus=s.bonus;autoUpgrades[i]._level=s._level||0;} });
+    if (d.mineUpgrades)   d.mineUpgrades  .forEach((s,i)=>{ if(mineUpgrades[i])  {mineUpgrades[i].preco=s.preco;mineUpgrades[i].bonus=s.bonus;mineUpgrades[i]._level=s._level||0;} });
+    if (d.eliteUpgrades)  d.eliteUpgrades .forEach((s,i)=>{ if(eliteUpgrades[i]) {eliteUpgrades[i].preco=s.preco;eliteUpgrades[i].bonusClick=s.bonusClick;eliteUpgrades[i].bonusAuto=s.bonusAuto;eliteUpgrades[i]._level=s._level||0;} });
+    if (d.combatUpgrades) d.combatUpgrades.forEach((s,i)=>{ if(combatUpgrades[i]){combatUpgrades[i].preco=s.preco;combatUpgrades[i].bonus=s.bonus;combatUpgrades[i]._level=s._level||0;} });
+    if (d.powerUpgrades)  d.powerUpgrades .forEach((s,i)=>{ if(powerUpgrades[i]) {powerUpgrades[i].preco=s.preco;powerUpgrades[i]._level=s._level||0;} });
+    if (d.defenseUpgrades)d.defenseUpgrades.forEach((s,i)=>{ if(defenseUpgrades[i]){defenseUpgrades[i]._bought=s._bought||false;} });
+    // Recalcula stealReduction com base nos defensivos comprados
+    stealReduction = 0;
+    defenseUpgrades.forEach(u => { if (u._bought) stealReduction = Math.min(0.90, stealReduction + u.reduce); });
+  } catch(e) {}
+}
+
+// --- ADMIN CONSOLE ---
+window.admin = {
+  money:      v => { money = Number(v); totalMoneyEarned += Number(v); updateUI(); },
+  diamonds:   v => { diamonds = Number(v); updateUI(); },
+  jokers:     v => { jokers = Number(v); updateUI(); },
+  click:      v => { clickPower = Number(v); updateUI(); },
+  auto:       v => { autoPower = Number(v); updateUI(); },
+  combat:     v => { combatPower = Number(v); updateUI(); showPopup(`⚔️ Combate = ${fmt(Number(v))}`); },
+  level:      v => { totalMoneyEarned = LEVELS[Math.min(v-1,LEVELS.length-1)][0]+1; updateUI(); },
+  prestige:   v => { prestigeCount = Number(v); updateUI(); },
+  ascend:     ()=> { diamonds += 1e12; money += 1e15; updateUI(); showPopup('🚀 Ascensão!'); },
+  unlockAll:  ()=> { ACHIEVEMENTS.forEach(a=>unlockedAchs.add(a.id)); renderAchievements(); showPopup('🏆 Tudo desbloqueado!'); },
+  givePet:    ()=> showPopup('🐾 [Pets em breve!]'),
+  giveArtifact: ()=> showPopup('⚔️ [Artefatos em breve!]'),
+  rainMoney:  ()=> { for(let i=0;i<30;i++) setTimeout(()=>spawnFloat(1e9),i*80); money+=30e9; totalMoneyEarned+=30e9; updateUI(); },
+  blackhole:  ()=> { money=0; diamonds=0; autoPower=0; clickPower=1; showEvent('🕳️','BURACO NEGRO!','Tudo consumido...'); updateUI(); },
+  supernova:  ()=> { money*=1e6; totalMoneyEarned*=1e6; updateUI(); showEvent('💥','SUPERNOVA!','Tudo multiplicado!'); },
+  wifier:     ()=> { money=1e30; diamonds=1e15; clickPower=1e12; autoPower=1e12; gemPower=1e9; jokers=99; updateUI(); showEvent('👑','WIFIER MODE!','Poder máximo ativado!'); },
+  gigachad:   ()=> { clickPower*=9999; autoPower*=9999; updateUI(); showPopup('💪 GigaChad!'); },
+  shrek:      ()=> { showEvent('🟢','Shrek chegou!','Tudo vai sair como deve sair.'); },
+  minecraft:  ()=> { showEvent('⛏️','Modo Minecraft!','Construindo impérios...'); money+=1e12; totalMoneyEarned+=1e12; updateUI(); },
+  doge:       ()=> { showEvent('🐕','Muito Moonwalk.','Very Michael. Wow.'); diamonds+=1e9; updateUI(); },
+  thanos:     ()=> { money=Math.floor(money/2); diamonds=Math.floor(diamonds/2); clickPower=Math.floor(clickPower/2); updateUI(); showEvent('💜','Thanos esteve aqui.','Perfeitamente equilibrado.'); },
+  max:        ()=> { money=1e30; diamonds=1e18; clickPower=1e15; autoPower=1e15; gemPower=1e12; jokers=999; updateUI(); },
+  reset:      ()=> { if(confirm('Apagar tudo?')){ localStorage.clear(); location.reload(); } },
+  save:       ()=> { saveGame(); showPopup('💾 Salvo!'); },
+  load:       ()=> { loadGame(); renderShops(); updateUI(); showPopup('📂 Carregado!'); },
+  help: () => adminHelp(),
+};
+
+// =============================================
+// ADMIN CODES — 100 códigos únicos e nomeados
+// =============================================
+const adminCodes = {
+  // 💰 DINHEIRO
+  code1:   { label:'💰 +1 Bilhão de Moedas',          fn:()=>{ money+=1e9;   totalMoneyEarned+=1e9;   updateUI(); showPopup('💰 +1 Bilhão!'); } },
+  code2:   { label:'💰 +100 Bilhões de Moedas',        fn:()=>{ money+=1e11;  totalMoneyEarned+=1e11;  updateUI(); showPopup('💰 +100 Bilhões!'); } },
+  code3:   { label:'💰 +1 Trilhão de Moedas',          fn:()=>{ money+=1e12;  totalMoneyEarned+=1e12;  updateUI(); showPopup('💰 +1 Trilhão!'); } },
+  code4:   { label:'💰 +1 Quadrilhão de Moedas',       fn:()=>{ money+=1e15;  totalMoneyEarned+=1e15;  updateUI(); showPopup('💰 +1 Quadrilhão!'); } },
+  code5:   { label:'💰 Moedas x10',                    fn:()=>{ money*=10;    totalMoneyEarned*=10;    updateUI(); showPopup('💰 Moedas x10!'); } },
+  code6:   { label:'💰 Moedas x100',                   fn:()=>{ money*=100;   totalMoneyEarned*=100;   updateUI(); showPopup('💰 Moedas x100!'); } },
+  code7:   { label:'💰 Moedas x1000',                  fn:()=>{ money*=1000;  totalMoneyEarned*=1000;  updateUI(); showPopup('💰 Moedas x1000!'); } },
+  code8:   { label:'💰 +1 Sextilhão de Moedas',        fn:()=>{ money+=1e21;  totalMoneyEarned+=1e21;  updateUI(); showPopup('💰 +1 Sextilhão!'); } },
+  // 💎 GEMAS
+  code9:   { label:'💎 +10.000 Gemas',                 fn:()=>{ diamonds+=1e4;  updateUI(); showPopup('💎 +10.000 Gemas!'); } },
+  code10:  { label:'💎 +1 Milhão de Gemas',            fn:()=>{ diamonds+=1e6;  updateUI(); showPopup('💎 +1 Milhão Gemas!'); } },
+  code11:  { label:'💎 +1 Bilhão de Gemas',            fn:()=>{ diamonds+=1e9;  updateUI(); showPopup('💎 +1 Bilhão Gemas!'); } },
+  code12:  { label:'💎 +1 Trilhão de Gemas',           fn:()=>{ diamonds+=1e12; updateUI(); showPopup('💎 +1 Trilhão Gemas!'); } },
+  code13:  { label:'💎 Gemas x10',                     fn:()=>{ diamonds*=10;   updateUI(); showPopup('💎 Gemas x10!'); } },
+  code14:  { label:'💎 Gemas x1000',                   fn:()=>{ diamonds*=1000; updateUI(); showPopup('💎 Gemas x1000!'); } },
+  code15:  { label:'💎 +1 Quadrilhão de Gemas',        fn:()=>{ diamonds+=1e15; updateUI(); showPopup('💎 +1 Quadrilhão!'); } },
+  // ⚡ CLIQUE
+  code16:  { label:'⚡ Clique x10',                    fn:()=>{ clickPower*=10;    updateUI(); showPopup('⚡ Clique x10!'); } },
+  code17:  { label:'⚡ Clique x100',                   fn:()=>{ clickPower*=100;   updateUI(); showPopup('⚡ Clique x100!'); } },
+  code18:  { label:'⚡ Clique x1000',                  fn:()=>{ clickPower*=1000;  updateUI(); showPopup('⚡ Clique x1000!'); } },
+  code19:  { label:'⚡ Clique x1 Milhão',              fn:()=>{ clickPower*=1e6;   updateUI(); showPopup('⚡ Clique x1M!'); } },
+  code20:  { label:'⚡ +1 Bilhão de Clique',           fn:()=>{ clickPower+=1e9;   updateUI(); showPopup('⚡ +1B Clique!'); } },
+  code21:  { label:'⚡ +1 Trilhão de Clique',          fn:()=>{ clickPower+=1e12;  updateUI(); showPopup('⚡ +1T Clique!'); } },
+  code22:  { label:'⚡ Clique Absoluto (1e15)',         fn:()=>{ clickPower=1e15;   updateUI(); showPopup('⚡ Clique Absoluto!'); } },
+  // 🏭 AUTO
+  code23:  { label:'🏭 Auto x10',                      fn:()=>{ autoPower*=10;    updateUI(); showPopup('🏭 Auto x10!'); } },
+  code24:  { label:'🏭 Auto x100',                     fn:()=>{ autoPower*=100;   updateUI(); showPopup('🏭 Auto x100!'); } },
+  code25:  { label:'🏭 Auto x1000',                    fn:()=>{ autoPower*=1000;  updateUI(); showPopup('🏭 Auto x1000!'); } },
+  code26:  { label:'🏭 +1 Bilhão Auto/s',              fn:()=>{ autoPower+=1e9;   updateUI(); showPopup('🏭 +1B Auto!'); } },
+  code27:  { label:'🏭 +1 Trilhão Auto/s',             fn:()=>{ autoPower+=1e12;  updateUI(); showPopup('🏭 +1T Auto!'); } },
+  code28:  { label:'🏭 Auto Máximo (1e15/s)',           fn:()=>{ autoPower=1e15;   updateUI(); showPopup('🏭 Auto Máximo!'); } },
+  // 🃏 CORINGAS
+  code29:  { label:'🃏 +1 Coringa',                    fn:()=>{ jokers+=1;   updateUI(); showPopup('🃏 +1 Coringa!'); } },
+  code30:  { label:'🃏 +10 Coringas',                  fn:()=>{ jokers+=10;  updateUI(); showPopup('🃏 +10 Coringas!'); } },
+  code31:  { label:'🃏 +100 Coringas',                 fn:()=>{ jokers+=100; updateUI(); showPopup('🃏 +100 Coringas!'); } },
+  code32:  { label:'🃏 Usar 1 Coringa Automático',     fn:()=>{ useJoker(); } },
+  // ⭐ NÍVEL / PROGRESSO
+  code33:  { label:'⭐ Ir para Nível 10',              fn:()=>{ totalMoneyEarned=LEVELS[9][0]+1;  updateUI(); showPopup('⭐ Nível 10!'); } },
+  code34:  { label:'⭐ Ir para Nível 25',              fn:()=>{ totalMoneyEarned=LEVELS[24][0]+1; updateUI(); showPopup('⭐ Nível 25!'); } },
+  code35:  { label:'⭐ Ir para Nível 50',              fn:()=>{ totalMoneyEarned=LEVELS[49][0]+1; updateUI(); showPopup('⭐ Nível 50!'); } },
+  code36:  { label:'⭐ Ir para Nível 75',              fn:()=>{ totalMoneyEarned=LEVELS[74][0]+1; updateUI(); showPopup('⭐ Nível 75!'); } },
+  code37:  { label:'⭐ Ir para Nível 99',              fn:()=>{ totalMoneyEarned=LEVELS[98][0]+1; updateUI(); showPopup('⭐ Nível 99!'); } },
+  code38:  { label:'⭐ Ir para Nível 100 — DEUS',      fn:()=>{ totalMoneyEarned=LEVELS[99][0]+1; updateUI(); showEvent('🌙','NÍVEL 100!','Michael Deus do Moonwalk!'); } },
+  // 🌟 PRESTÍGIO
+  code39:  { label:'🌟 Forçar Prestígio',              fn:()=>{ totalMoneyEarned=1e10; prestige(); } },
+  code40:  { label:'🌟 +10 Prestígios',                fn:()=>{ prestigeCount+=10; prestigeBonus+=10; clickPower+=10; updateUI(); showPopup('🌟 +10 Prestígios!'); } },
+  code41:  { label:'🌟 Prestígio x100',                fn:()=>{ prestigeCount=100; prestigeBonus=100; clickPower+=100; updateUI(); showPopup('🌟 Prestígio 100!'); } },
+  // 💥 EVENTOS ESPECIAIS
+  code42:  { label:'💥 Explosão de Moedas (chuva)',    fn:()=>{ for(let i=0;i<50;i++) setTimeout(()=>spawnFloat(money*0.01),i*60); money*=1.5; totalMoneyEarned*=1.5; updateUI(); } },
+  code43:  { label:'🌧️ Chuva de Gemas',               fn:()=>{ diamonds*=2; showEvent('💎','Chuva de Gemas!','Gemas dobradas!'); updateUI(); } },
+  code44:  { label:'🎆 Fogos de Artifício',            fn:()=>{ showEvent('🎆','Parabéns!','Moonwalk Simulator agradece!'); for(let i=0;i<60;i++) setTimeout(()=>addDancer(),i*50); } },
+  code45:  { label:'🕺 Festa de Dançarinos (50)',       fn:()=>{ for(let i=0;i<50;i++) setTimeout(()=>addDancer(),i*40); showPopup('🕺 Festa iniciada!'); } },
+  code46:  { label:'🕺 Exército de Dançarinos (200)',   fn:()=>{ for(let i=0;i<200;i++) setTimeout(()=>addDancer(),i*20); showPopup('🕺 Exército!'); } },
+  code47:  { label:'🧹 Limpar Dançarinos',             fn:()=>{ document.getElementById('dancers').innerHTML=''; showPopup('🧹 Dançarinos removidos!'); } },
+  code48:  { label:'🌈 Modo Arco-Íris',                fn:()=>{ let h=0; const ri=setInterval(()=>{ document.body.style.filter=`hue-rotate(${h}deg)`; h=(h+3)%360; },30); setTimeout(()=>{ clearInterval(ri); document.body.style.filter=''; },8000); showPopup('🌈 Arco-Íris por 8s!'); } },
+  code49:  { label:'🔥 Modo Fogo (visual)',             fn:()=>{ document.getElementById('michael').style.filter='drop-shadow(0 0 40px #ff4400) drop-shadow(0 0 80px #ff0000)'; setTimeout(()=>{ document.getElementById('michael').style.filter=''; },5000); showPopup('🔥 Modo Fogo por 5s!'); } },
+  code50:  { label:'❄️ Modo Gelo (visual)',             fn:()=>{ document.getElementById('michael').style.filter='drop-shadow(0 0 40px #00aaff) drop-shadow(0 0 80px #0044ff) brightness(1.5)'; setTimeout(()=>{ document.getElementById('michael').style.filter=''; },5000); showPopup('❄️ Modo Gelo por 5s!'); } },
+  // 🎁 PACOTES COMPLETOS
+  code51:  { label:'🎁 Pacote Iniciante',              fn:()=>{ money+=1e6; diamonds+=1000; jokers+=1; updateUI(); showPopup('🎁 Pacote Iniciante!'); } },
+  code52:  { label:'🎁 Pacote Aventureiro',            fn:()=>{ money+=1e9; diamonds+=1e5; jokers+=5; clickPower*=5; updateUI(); showPopup('🎁 Pacote Aventureiro!'); } },
+  code53:  { label:'🎁 Pacote Lendário',              fn:()=>{ money+=1e12; diamonds+=1e8; jokers+=20; clickPower*=100; autoPower*=100; updateUI(); showPopup('🎁 Pacote Lendário!'); } },
+  code54:  { label:'🎁 Pacote Deus',                  fn:()=>{ money+=1e18; diamonds+=1e12; jokers+=50; clickPower*=1e6; autoPower*=1e6; updateUI(); showEvent('🌙','Pacote DEUS!','Poder absoluto!'); } },
+  code55:  { label:'🎁 Pacote Gemas Puro',            fn:()=>{ diamonds+=1e10; gemPower+=1000; updateUI(); showPopup('💎 Pacote de Gemas!'); } },
+  // 🔧 MULTIPLICADORES
+  code56:  { label:'🔧 Tudo x2',                      fn:()=>{ money*=2; diamonds*=2; clickPower*=2; autoPower*=2; totalMoneyEarned*=2; updateUI(); showPopup('🔧 Tudo x2!'); } },
+  code57:  { label:'🔧 Tudo x10',                     fn:()=>{ money*=10; diamonds*=10; clickPower*=10; autoPower*=10; totalMoneyEarned*=10; updateUI(); showPopup('🔧 Tudo x10!'); } },
+  code58:  { label:'🔧 Tudo x1000',                   fn:()=>{ money*=1000; diamonds*=1000; clickPower*=1000; autoPower*=1000; totalMoneyEarned*=1000; updateUI(); showPopup('🔧 Tudo x1000!'); } },
+  code59:  { label:'🔧 Clique = Auto',                fn:()=>{ clickPower=autoPower; updateUI(); showPopup('🔧 Clique igualado ao Auto!'); } },
+  code60:  { label:'🔧 Auto = Clique',                fn:()=>{ autoPower=clickPower; updateUI(); showPopup('🔧 Auto igualado ao Clique!'); } },
+  // 🧪 EXPERIMENTOS / CRIATIVOS
+  code61:  { label:'🧪 Modo Formiga (clique=1)',       fn:()=>{ clickPower=1; updateUI(); showPopup('🧪 Modo Formiga ativado!'); } },
+  code62:  { label:'🧪 Modo Pobre (money=0)',          fn:()=>{ money=0; updateUI(); showPopup('🧪 Você ficou pobre!'); } },
+  code63:  { label:'🧪 Modo Zero (reset suave)',       fn:()=>{ money=0; autoPower=0; gemPower=0; updateUI(); showPopup('🧪 Modo Zero!'); } },
+  code64:  { label:'🧪 Dobrar Prestígio Bonus',        fn:()=>{ prestigeBonus*=2; clickPower+=prestigeBonus; updateUI(); showPopup('🌟 Bônus de Prestígio x2!'); } },
+  code65:  { label:'🧪 Roubar do Futuro (+1e30)',      fn:()=>{ money+=1e30; totalMoneyEarned+=1e30; updateUI(); showEvent('⏳','Viagem no Tempo!','Moedas do futuro chegaram!'); } },
+  code66:  { label:'🧪 Velocidade x5 (10s)',           fn:()=>{ const old=autoPower; autoPower*=5; updateUI(); showPopup('⚡ Velocidade x5 por 10s!'); setTimeout(()=>{ autoPower=old; updateUI(); },10000); } },
+  code67:  { label:'🧪 Clique por 1 min automático',   fn:()=>{ let t=0; const ci=setInterval(()=>{ money+=clickPower*100; totalMoneyEarned+=clickPower*100; spawnFloat(clickPower*100); updateUI(); if(++t>=60) clearInterval(ci); },1000); showPopup('🖱️ Auto-clique por 1 min!'); } },
+  code68:  { label:'🎰 Roleta (aleatório bom/mal)',    fn:()=>{
+    const ops=[
+      ()=>{money*=10;showPopup('🎰 JACKPOT! Moedas x10!');},
+      ()=>{diamonds*=5;showPopup('🎰 Gemas x5!');},
+      ()=>{clickPower*=100;showPopup('🎰 Clique x100!');},
+      ()=>{jokers+=10;showPopup('🎰 +10 Coringas!');},
+      ()=>{money=Math.max(0,money*0.5);showPopup('🎰 Azarou! -50% moedas...');},
+      ()=>{diamonds=Math.max(0,diamonds*0.5);showPopup('🎰 Azarou! -50% gemas...');},
+      ()=>{money+=1e15;showPopup('🎰 MEGA JACKPOT! +1Q!');},
+    ];
+    ops[Math.floor(Math.random()*ops.length)]();
+    updateUI();
+  }},
+  code69:  { label:'😏 Código 69 (óbvio)',             fn:()=>{ money+=69e9; diamonds+=69000; jokers+=6; showEvent('😏','Código 69!','+69 Bilhões, +69k Gemas, +6 Coringas'); updateUI(); } },
+  code70:  { label:'🐍 Python Mode',                   fn:()=>{ autoPower+=1e9; showEvent('🐍','Python Mode!','import moonwalk_money as mm'); updateUI(); } },
+  code71:  { label:'☕ Java Mode',                     fn:()=>{ clickPower*=2; autoPower*=2; showEvent('☕','Java Mode!','NullPointerException: money++'); updateUI(); } },
+  code72:  { label:'🦀 Rust Mode',                     fn:()=>{ money+=1e12; showEvent('🦀','Rust Mode!','Memória gerenciada. Dinheiro não.'); updateUI(); } },
+  code73:  { label:'💾 Y2K (virou o milênio)',          fn:()=>{ money=2000; diamonds=2000; totalMoneyEarned=2000; clickPower=2000; autoPower=2000; updateUI(); showEvent('💾','Y2K!','Voltamos para o ano 2000!'); } },
+  code74:  { label:'🌍 Inflação (preços x2 tudo)',      fn:()=>{ [...clickUpgrades,...autoUpgrades,...mineUpgrades].forEach(u=>u.preco*=2); renderShops(); showPopup('🌍 Inflação! Preços x2!'); } },
+  code75:  { label:'📉 Deflação (preços ÷2 tudo)',      fn:()=>{ [...clickUpgrades,...autoUpgrades,...mineUpgrades].forEach(u=>u.preco=Math.max(1,Math.floor(u.preco/2))); renderShops(); showPopup('📉 Deflação! Preços ÷2!'); } },
+  code76:  { label:'🧲 Mina de Gemas x100',             fn:()=>{ gemPower*=100; updateUI(); showPopup('⛏️ Minas x100!'); } },
+  code77:  { label:'👑 Coroa de Deus',                  fn:()=>{ clickPower+=1e15; autoPower+=1e15; diamonds+=1e12; showEvent('👑','Coroa de Deus!','Poder divino recebido!'); updateUI(); } },
+  code78:  { label:'🎵 Modo Musical (dançarinos)',      fn:()=>{ for(let i=0;i<100;i++) setTimeout(()=>addDancer(),i*30); autoPower*=10; updateUI(); showPopup('🎵 Modo Musical!'); } },
+  code79:  { label:'🌌 Portal Dimensional',             fn:()=>{ money+=1e24; diamonds+=1e18; showEvent('🌌','Portal Dimensional!','Recursos de outra dimensão!'); updateUI(); } },
+  code80:  { label:'⚠️ Modo Hard (tudo ÷100)',          fn:()=>{ money=Math.max(1,money/100); diamonds=Math.max(1,diamonds/100); clickPower=Math.max(1,clickPower/100); autoPower=Math.max(0,autoPower/100); updateUI(); showEvent('⚠️','Modo Hard!','Que sorte a sua...'); } },
+  // 🏆 CONQUISTAS
+  code81:  { label:'🏆 Desbloquear Todas Conquistas',   fn:()=>{ ACHIEVEMENTS.forEach(a=>unlockedAchs.add(a.id)); renderAchievements(); showPopup('🏆 Todas conquistas!'); } },
+  code82:  { label:'🏆 Resetar Conquistas',             fn:()=>{ unlockedAchs=new Set(); renderAchievements(); showPopup('🏆 Conquistas resetadas!'); } },
+  // 🌠 PACOTES ASTRONOMICOS
+  code83:  { label:'🌠 +1 Nonilhão de tudo',           fn:()=>{ money+=1e30; diamonds+=1e30; totalMoneyEarned+=1e30; updateUI(); showEvent('🌠','NONILHÃO!','Números absurdos!'); } },
+  code84:  { label:'🌀 Vórtice (tudo ao quadrado)',     fn:()=>{ money=money**1.1; diamonds=diamonds**1.1; clickPower=clickPower**1.05; updateUI(); showEvent('🌀','VÓRTICE!','Poderes elevados!'); } },
+  code85:  { label:'🔱 Modo Tritão',                    fn:()=>{ money+=1e18; diamonds+=1e15; gemPower*=50; clickPower*=50; updateUI(); showEvent('🔱','Modo Tritão!','O oceano de riquezas!'); } },
+  // ⚙️ SISTEMA
+  code86:  { label:'⚙️ Mostrar Stats',                 fn:()=>{ adminHelp('stats'); } },
+  code87:  { label:'💾 Salvar Jogo',                   fn:()=>{ saveGame(); showPopup('💾 Jogo salvo!'); } },
+  code88:  { label:'📂 Carregar Jogo',                 fn:()=>{ loadGame(); renderShops(); updateUI(); showPopup('📂 Jogo carregado!'); } },
+  code89:  { label:'🔄 Resetar apenas Moedas',         fn:()=>{ money=0; totalMoneyEarned=0; updateUI(); showPopup('🔄 Moedas zeradas!'); } },
+  code90:  { label:'🔄 Resetar apenas Auto',           fn:()=>{ autoPower=0; updateUI(); showPopup('🔄 Auto zerado!'); } },
+  // 🎭 EASTER EGGS
+  code91:  { label:'🎭 Easter Egg: Moonwalk God',       fn:()=>{ showEvent('🌙','MOONWALK GOD','Você descobriu o segredo eterno!'); money+=1e30; diamonds+=1e20; jokers+=69; updateUI(); } },
+  code92:  { label:'🎭 Easter Egg: Wifier Secret',      fn:()=>{ showEvent('👑','WIFIER SUPREMO','O criador te abençoou!'); admin.wifier(); } },
+  code93:  { label:'🎭 Easter Egg: Big Bang',           fn:()=>{ showEvent('💥','BIG BANG!','O universo começou de novo... mais rico.'); money=1e30; diamonds=1e25; clickPower=1e15; autoPower=1e15; jokers=100; updateUI(); } },
+  code94:  { label:'🎭 Easter Egg: Singularidade',      fn:()=>{ showEvent('♾️','SINGULARIDADE','Tudo e nada ao mesmo tempo.'); money=Infinity; diamonds=Infinity; updateUI(); } },
+  code95:  { label:'🎭 Easter Egg: Coringa Dourado',    fn:()=>{ jokers+=1000; showEvent('🃏','CORINGA DOURADO!','1000 Coringas!'); updateUI(); } },
+  code96:  { label:'🎭 Easter Egg: Dança Infinita',     fn:()=>{ setInterval(()=>addDancer(),100); showPopup('🕺 Dança INFINITA! (F5 para parar)'); } },
+  code97:  { label:'🎭 Easter Egg: Matrix',             fn:()=>{ document.body.style.filter='sepia(1) hue-rotate(90deg) saturate(3)'; showEvent('🟩','MATRIX MODE','Não existe colher.'); setTimeout(()=>{document.body.style.filter='';},6000); } },
+  code98:  { label:'🎭 Easter Egg: Moonwalk Supremo',   fn:()=>{ totalMoneyEarned=LEVELS[LEVELS.length-2][0]+1; money+=1e30; diamonds+=1e25; jokers+=50; updateUI(); showEvent('🌙','MOONWALK SUPREMO','Você alcançou o topo!'); } },
+  code99:  { label:'🎭 Easter Egg: Código 99',          fn:()=>{ money+=99e12; diamonds+=99e9; jokers+=9; clickPower*=99; autoPower*=99; updateUI(); showEvent('9️⃣9️⃣','CÓDIGO 99!','Noves fora... tudo dentro!'); } },
+  code100: { label:'🌙 CÓDIGO 100 — LENDÁRIO',          fn:()=>{ admin.max(); admin.unlockAll(); for(let i=0;i<200;i++) setTimeout(()=>addDancer(),i*15); jokers=999; prestigeCount=100; prestigeBonus=1000; clickPower=1e18; autoPower=1e18; gemPower=1e15; updateUI(); showEvent('🌙','CÓDIGO LENDÁRIO 100!','Você é o Deus do Moonwalk!'); } },
+};
+
+// Registrar todos os códigos no admin
+Object.keys(adminCodes).forEach(k => {
+  admin[k] = adminCodes[k].fn;
+});
+
+// =============================================
+// PAINEL DE AJUDA ESTILIZADO
+// =============================================
+function adminHelp(mode) {
+  // Remove painel existente
+  const old = document.getElementById('adminPanel');
+  if (old) { old.remove(); return; }
+
+  const panel = document.createElement('div');
+  panel.id = 'adminPanel';
+  panel.style.cssText = `
+    position:fixed; inset:0; background:rgba(0,0,0,0.88);
+    z-index:999999; display:flex; align-items:center; justify-content:center;
+    backdrop-filter:blur(8px); animation:panelIn .25s ease;
+  `;
+
+  const groups = {
+    '💰 Dinheiro':     Object.entries(adminCodes).filter(([k])=>+k.replace('code','')<=8),
+    '💎 Gemas':        Object.entries(adminCodes).filter(([k])=>{ const n=+k.replace('code',''); return n>=9&&n<=15; }),
+    '⚡ Clique':       Object.entries(adminCodes).filter(([k])=>{ const n=+k.replace('code',''); return n>=16&&n<=22; }),
+    '🏭 Auto':         Object.entries(adminCodes).filter(([k])=>{ const n=+k.replace('code',''); return n>=23&&n<=28; }),
+    '🃏 Coringas':     Object.entries(adminCodes).filter(([k])=>{ const n=+k.replace('code',''); return n>=29&&n<=32; }),
+    '⭐ Nível':        Object.entries(adminCodes).filter(([k])=>{ const n=+k.replace('code',''); return n>=33&&n<=38; }),
+    '🌟 Prestígio':    Object.entries(adminCodes).filter(([k])=>{ const n=+k.replace('code',''); return n>=39&&n<=41; }),
+    '💥 Eventos':      Object.entries(adminCodes).filter(([k])=>{ const n=+k.replace('code',''); return n>=42&&n<=50; }),
+    '🎁 Pacotes':      Object.entries(adminCodes).filter(([k])=>{ const n=+k.replace('code',''); return n>=51&&n<=55; }),
+    '🔧 Multiplicar':  Object.entries(adminCodes).filter(([k])=>{ const n=+k.replace('code',''); return n>=56&&n<=60; }),
+    '🧪 Experimentos': Object.entries(adminCodes).filter(([k])=>{ const n=+k.replace('code',''); return n>=61&&n<=80; }),
+    '🏆 Conquistas':   Object.entries(adminCodes).filter(([k])=>{ const n=+k.replace('code',''); return n>=81&&n<=82; }),
+    '🌠 Especiais':    Object.entries(adminCodes).filter(([k])=>{ const n=+k.replace('code',''); return n>=83&&n<=85; }),
+    '⚙️ Sistema':      Object.entries(adminCodes).filter(([k])=>{ const n=+k.replace('code',''); return n>=86&&n<=90; }),
+    '🎭 Easter Eggs':  Object.entries(adminCodes).filter(([k])=>{ const n=+k.replace('code',''); return n>=91&&n<=100; }),
+  };
+
+  // Comandos base
+  const baseCmds = [
+    ['admin.money(v)',    '💰 Define moedas'],
+    ['admin.diamonds(v)', '💎 Define gemas'],
+    ['admin.jokers(v)',   '🃏 Define coringas'],
+    ['admin.click(v)',    '⚡ Define clique'],
+    ['admin.auto(v)',     '🏭 Define auto/s'],
+    ['admin.level(v)',    '⭐ Vai para nível'],
+    ['admin.prestige(v)', '🌟 Define prestígio'],
+    ['admin.max()',       '🚀 Tudo ao máximo'],
+    ['admin.wifier()',    '👑 Modo Wifier'],
+    ['admin.ascend()',    '🛸 Ascender'],
+    ['admin.unlockAll()', '🏆 Desbloq. tudo'],
+    ['admin.rainMoney()', '🌧️ Chuva de moedas'],
+    ['admin.blackhole()', '🕳️ Buraco negro'],
+    ['admin.supernova()', '💥 Supernova'],
+    ['admin.gigachad()',  '💪 GigaChad'],
+    ['admin.thanos()',    '💜 Thanos'],
+    ['admin.shrek()',     '🟢 Shrek'],
+    ['admin.minecraft()', '⛏️ Minecraft'],
+    ['admin.doge()',      '🐕 Doge'],
+    ['admin.save()',      '💾 Salvar'],
+    ['admin.load()',      '📂 Carregar'],
+    ['admin.reset()',     '🗑️ Reset total'],
+  ];
+
+  let statsHtml = '';
+  if (mode === 'stats') {
+    statsHtml = `
+      <div style="background:#0a0a1a;border:1px solid #9b30ff;border-radius:12px;padding:14px;margin-bottom:14px;font-family:monospace;font-size:13px;line-height:1.8;color:#e8e8ff;">
+        💰 Moedas: <b style="color:#ffd700">${fmt(money)}</b><br>
+        💎 Gemas: <b style="color:#00d4ff">${fmt(diamonds)}</b><br>
+        🃏 Coringas: <b style="color:#9b30ff">${jokers}</b><br>
+        ⚡ Clique: <b style="color:#ffd700">${fmt(clickPower)}</b><br>
+        🏭 Auto/s: <b style="color:#ffd700">${fmt(autoPower)}</b><br>
+        💎 Gema/s: <b style="color:#00d4ff">${fmt(gemPower)}</b><br>
+        ⭐ Nível: <b style="color:#ffd700">${currentLevel}/100</b><br>
+        🌟 Prestígio: <b style="color:#ff00aa">${prestigeCount}</b> (+${fmt(prestigeBonus)} clique)<br>
+        📈 Total Ganho: <b style="color:#ffd700">${fmt(totalMoneyEarned)}</b>
+      </div>`;
+  }
+
+  let groupsHtml = '';
+  for (const [gname, entries] of Object.entries(groups)) {
+    if (!entries.length) continue;
+    groupsHtml += `<div style="margin-bottom:10px;">
+      <div style="font-size:12px;font-weight:700;color:#9b30ff;letter-spacing:1px;margin-bottom:6px;text-transform:uppercase;">${gname}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;">
+        ${entries.map(([k,v])=>`
+          <button onclick="admin.${k}();document.getElementById('adminPanel')?.remove();" style="
+            background:#1a1a2e;border:1px solid rgba(155,48,255,0.3);color:#e8e8ff;
+            padding:5px 10px;border-radius:8px;cursor:pointer;font-size:11px;
+            font-family:'Rajdhani',sans-serif;font-weight:600;transition:all .15s;
+            white-space:nowrap;
+          " onmouseover="this.style.borderColor='#ffd700';this.style.color='#ffd700';"
+             onmouseout="this.style.borderColor='rgba(155,48,255,0.3)';this.style.color='#e8e8ff';"
+          ><span style="opacity:.6;font-size:10px">${k}</span><br>${v.label}</button>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  let baseCmdsHtml = baseCmds.map(([cmd,desc])=>`
+    <button onclick="const r=prompt('Valor para ${cmd}:'); if(r!==null){try{eval('${cmd.includes('(v)')? cmd.replace('(v)','('+0+')'): cmd}'.replace(/\\(0\\)/,'('+r+')')); }catch(e){} } document.getElementById('adminPanel')?.remove();" style="
+      background:#0a0a1a;border:1px solid rgba(255,215,0,0.2);color:#e8e8ff;
+      padding:5px 10px;border-radius:8px;cursor:pointer;font-size:11px;
+      font-family:monospace;transition:all .15s;white-space:nowrap;text-align:left;
+    " onmouseover="this.style.borderColor='#ffd700';this.style.color='#ffd700';"
+       onmouseout="this.style.borderColor='rgba(255,215,0,0.2)';this.style.color='#e8e8ff';"
+    ><b style="color:#ffd700">${cmd}</b><br><span style="color:#888;font-size:10px">${desc}</span></button>
+  `).join('');
+
+  panel.innerHTML = `
+    <div style="
+      background:linear-gradient(135deg,#080810,#10101e);
+      border:1px solid rgba(155,48,255,0.5);
+      border-radius:20px;
+      width:min(960px,96vw);
+      max-height:88vh;
+      overflow-y:auto;
+      padding:20px 22px;
+      box-shadow:0 0 60px rgba(155,48,255,0.25), 0 0 120px rgba(0,0,0,0.8);
+      scrollbar-width:thin;
+      scrollbar-color:#333 transparent;
+    ">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div>
+          <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;
+            background:linear-gradient(90deg,#ffd700,#9b30ff,#00d4ff);
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+            letter-spacing:2px;">🎮 CONSOLE ADMIN</div>
+          <div style="font-size:11px;color:#555;margin-top:2px;">Moonwalk Simulator Deluxe — Painel de Controle</div>
+        </div>
+        <button onclick="document.getElementById('adminPanel').remove();" style="
+          background:rgba(255,0,0,0.15);border:1px solid rgba(255,0,0,0.4);
+          color:#ff6666;padding:6px 14px;border-radius:8px;cursor:pointer;
+          font-size:13px;font-weight:700;
+        ">✕ Fechar</button>
+      </div>
+      ${statsHtml}
+      <div style="margin-bottom:14px;">
+        <div style="font-size:12px;font-weight:700;color:#ffd700;letter-spacing:1px;margin-bottom:8px;text-transform:uppercase;">⚙️ Comandos Base</div>
+        <div style="display:flex;flex-wrap:wrap;gap:5px;">${baseCmdsHtml}</div>
+      </div>
+      <div style="border-top:1px solid rgba(255,215,0,0.1);padding-top:14px;">
+        <div style="font-size:12px;font-weight:700;color:#ffd700;letter-spacing:1px;margin-bottom:10px;text-transform:uppercase;">🎯 Codes (clique para ativar)</div>
+        ${groupsHtml}
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.05);text-align:center;">
+        <button onclick="adminHelp('stats');document.getElementById('adminPanel')?.remove();" style="
+          background:linear-gradient(135deg,#1a0033,#000820);border:1px solid #9b30ff;
+          color:#9b30ff;padding:8px 20px;border-radius:20px;cursor:pointer;
+          font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;margin:4px;
+        ">📊 VER STATS</button>
+        <button onclick="saveGame();showPopup('💾 Salvo!');document.getElementById('adminPanel')?.remove();" style="
+          background:linear-gradient(135deg,#003300,#001a00);border:1px solid #00ff88;
+          color:#00ff88;padding:8px 20px;border-radius:20px;cursor:pointer;
+          font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;margin:4px;
+        ">💾 SALVAR</button>
+        <button onclick="if(confirm('Apagar tudo?')){localStorage.clear();location.reload();}" style="
+          background:linear-gradient(135deg,#330000,#1a0000);border:1px solid #ff4444;
+          color:#ff4444;padding:8px 20px;border-radius:20px;cursor:pointer;
+          font-family:'Orbitron',sans-serif;font-size:11px;font-weight:700;margin:4px;
+        ">🗑️ RESET TOTAL</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(panel);
+  panel.addEventListener('click', e => { if(e.target===panel) panel.remove(); });
+}
+
+// --- SOUND BTN ---
+document.getElementById('soundBtn').addEventListener('click', () => {
+  soundOn = !soundOn;
+  document.getElementById('soundBtn').textContent = soundOn ? '🔊' : '🔇';
+});
+
+// --- CLICK MICHAEL ---
+document.getElementById('michael').addEventListener('click', () => {
+  const earned = clickPower;
+  money += earned;
+  totalMoneyEarned += earned;
+  spawnFloat(earned);
+  updateUI();
+});
+
+// --- SECRET CONSOLE (keyboard: "pzu" or footer 5x) ---
+let keySeq = '';
+document.addEventListener('keydown', e => {
+  keySeq = (keySeq + e.key.toLowerCase()).slice(-3);
+  if (keySeq === 'pzu') openAdmin();
+});
+let credClicks = 0, credTimer = null;
+document.getElementById('credits').addEventListener('click', () => {
+  credClicks++;
+  clearTimeout(credTimer);
+  credTimer = setTimeout(()=>{credClicks=0;}, 3000);
+  if(credClicks===4) showPopup('🔓 Mais um...');
+  if(credClicks>=5) { credClicks=0; openAdmin(); }
+});
+function openAdmin() {
+  const cmd = prompt('🎮 Console Admin\nDigite um comando (ex: admin.max())');
+  if (!cmd) return;
+  try { eval(cmd); } catch(e) { showPopup('❌ Erro: '+e.message); }
+}
+
+// =============================================
+// SISTEMA DE INIMIGOS E BOSS
+// =============================================
+
+const ENEMY_TYPES = [
+  { emoji:'👿', name:'Ladrãozinho',  hpMult:1,   speed:0.55, steal:0.004, color:'#ff4444' },
+  { emoji:'👺', name:'Ogro',         hpMult:2,   speed:0.40, steal:0.008, color:'#ff6600' },
+  { emoji:'🧟', name:'Zumbi',        hpMult:1.5, speed:0.65, steal:0.006, color:'#88ff44' },
+  { emoji:'💀', name:'Esqueleto',    hpMult:1.2, speed:0.80, steal:0.005, color:'#cccccc' },
+  { emoji:'🐍', name:'Serpente',     hpMult:1.8, speed:0.70, steal:0.007, color:'#44ff88' },
+  { emoji:'🦂', name:'Escorpião',    hpMult:2.2, speed:0.50, steal:0.010, color:'#ffaa00' },
+  { emoji:'👁️', name:'Olho do Mal',  hpMult:2.5, speed:0.45, steal:0.012, color:'#ff00aa' },
+  { emoji:'🔥', name:'Demônio',      hpMult:3,   speed:0.35, steal:0.015, color:'#ff3300' },
+  { emoji:'🕷️', name:'Aranha',      hpMult:1.3, speed:1.0,  steal:0.003, color:'#aa44ff' },
+  { emoji:'🐉', name:'Dragãozinho',  hpMult:4,   speed:0.30, steal:0.020, color:'#00aaff' },
+];
+
+const BOSS_TYPES = [
+  { emoji:'👹', name:'CHEFE LADRÃO',      hpMult:20,  speed:0.18, steal:0.50, color:'#ff2200' },
+  { emoji:'🧛', name:'VAMPIRO REI',       hpMult:30,  speed:0.15, steal:0.50, color:'#9900cc' },
+  { emoji:'🦖', name:'TIRANOSSAURO',      hpMult:40,  speed:0.14, steal:0.50, color:'#00aa44' },
+  { emoji:'🌑', name:'BURACO NEGRO VIVO', hpMult:60,  speed:0.12, steal:0.50, color:'#440066' },
+  { emoji:'☠️', name:'DEUS DA MORTE',     hpMult:100, speed:0.10, steal:0.50, color:'#ffffff' },
+];
+
+let enemies        = [];
+let killCount      = 0;
+let bossKillCount  = 0;
+let bossActive     = false;
+let enemyIdCounter = 0;
+let combatPower    = 1;   // dano por clique em inimigos (separado do clickPower de moedas)
+
+// HP base por tier de horda: boss lv20=10 cliques, lv40=20, lv60=40, lv80=80, lv100=160
+// Monstrinhos = 30% do HP do boss da sua horda
+function enemyBaseHP(isBoss) {
+  const tier = Math.floor(currentLevel / 20); // 1..5
+  // Boss precisa de (tier * 10) cliques com combatPower=1
+  const bossHP = Math.max(10, tier * 10) * combatPower;
+  return isBoss ? bossHP : Math.max(3, Math.floor(bossHP * 0.30));
+}
+
+function spawnEnemy(isBoss = false) {
+  const area = document.getElementById('gameArea');
+  if (!area) return;
+  const aW = area.clientWidth;
+  const aH = area.clientHeight;
+
+  const id = ++enemyIdCounter;
+  let type, hp, speed, steal, isBossEnemy = false;
+
+  if (isBoss) {
+    const bt = BOSS_TYPES[Math.min(Math.floor(bossKillCount / 500), BOSS_TYPES.length - 1)];
+    type        = bt;
+    hp          = Math.floor(enemyBaseHP(true) * bt.hpMult);
+    speed       = bt.speed;
+    steal       = bt.steal;
+    isBossEnemy = true;
+    bossActive  = true;
+  } else {
+    const et = ENEMY_TYPES[Math.floor(Math.random() * ENEMY_TYPES.length)];
+    type  = et;
+    hp    = Math.floor(enemyBaseHP(false) * et.hpMult);
+    speed = et.speed * (1 + currentLevel * 0.015);
+    steal = et.steal;
+  }
+
+  // Spawn de um dos 4 lados aleatório
+  const side = Math.floor(Math.random() * 4);
+  let startX, startY;
+  if      (side === 0) { startX = Math.random() * aW; startY = -50; }
+  else if (side === 1) { startX = aW + 50;             startY = Math.random() * aH; }
+  else if (side === 2) { startX = Math.random() * aW; startY = aH + 50; }
+  else                 { startX = -50;                  startY = Math.random() * aH; }
+
+  // DOM
+  const el = document.createElement('div');
+  el.className = 'enemy' + (isBossEnemy ? ' boss' : '');
+  el.style.left     = startX + 'px';
+  el.style.top      = startY + 'px';
+  el.style.fontSize = isBossEnemy ? '56px' : (28 + Math.random() * 16) + 'px';
+
+  const hpBar = document.createElement('div');
+  hpBar.className = 'enemy-hp-bar';
+  const hpFill = document.createElement('div');
+  hpFill.className = 'enemy-hp-fill';
+  hpFill.style.background = `linear-gradient(90deg, ${type.color}, ${type.color}88)`;
+  hpBar.appendChild(hpFill);
+  el.innerHTML = type.emoji;
+  el.appendChild(hpBar);
+
+  const obj = {
+    id, el, hpBar, hpFill,
+    x: startX, y: startY,
+    hp, maxHp: hp,
+    speed, steal,
+    type, isBoss: isBossEnemy,
+    touching: false, touchTimer: 0,
+    dead: false,
+  };
+
+  el.addEventListener('click', (e) => {
+    e.stopPropagation();
+    hitEnemy(obj);
+  });
+  el.addEventListener('touchstart', (e) => {
+    e.preventDefault(); e.stopPropagation();
+    hitEnemy(obj);
+  }, { passive: false });
+
+  area.appendChild(el);
+  enemies.push(obj);
+
+  if (isBossEnemy) showBossWarning(type);
+}
+
+function hitEnemy(obj) {
+  if (obj.dead) return;
+  const dmg = Math.max(1, Math.floor(combatPower));
+
+  obj.hp -= dmg;
+  // atualiza barra de HP
+  const pct = Math.max(0, obj.hp / obj.maxHp * 100);
+  obj.hpFill.style.width = pct + '%';
+
+  // damage number
+  const area = document.getElementById('gameArea');
+  const dmgEl = document.createElement('div');
+  dmgEl.className = 'enemy-dmg';
+  dmgEl.textContent = '-' + fmt(dmg);
+  dmgEl.style.left = (obj.x + 10 + (Math.random() * 20 - 10)) + 'px';
+  dmgEl.style.top  = (obj.y - 10) + 'px';
+  area.appendChild(dmgEl);
+  setTimeout(() => dmgEl.remove(), 700);
+
+  // flash
+  obj.el.style.filter = obj.isBoss
+    ? 'drop-shadow(0 0 30px #fff) brightness(2)'
+    : 'drop-shadow(0 0 20px #ff4444) brightness(2)';
+  setTimeout(() => {
+    obj.el.style.filter = obj.isBoss
+      ? 'drop-shadow(0 0 20px rgba(155,48,255,0.9)) drop-shadow(0 0 40px rgba(255,0,170,0.5))'
+      : 'drop-shadow(0 0 8px rgba(255,50,50,0.8))';
+  }, 80);
+
+  if (obj.hp <= 0) killEnemy(obj);
+}
+
+function killEnemy(obj) {
+  if (obj.dead) return;
+  obj.dead = true;
+
+  // Recompensa
+  const reward = Math.max(1, Math.floor(clickPower * (obj.isBoss ? 50 : 5)));
+  const gemReward = obj.isBoss ? Math.floor(Math.random() * 50 + 10) : (Math.random() < 0.05 ? 1 : 0);
+  money += reward;
+  totalMoneyEarned += reward;
+  if (gemReward > 0) diamonds += gemReward;
+  spawnFloat(reward);
+
+  // Kill burst
+  const area = document.getElementById('gameArea');
+  const burst = document.createElement('div');
+  burst.className = 'enemy-kill-burst';
+  burst.textContent = obj.isBoss ? '💥' : '✨';
+  burst.style.left = obj.x + 'px';
+  burst.style.top  = obj.y + 'px';
+  area.appendChild(burst);
+  setTimeout(() => burst.remove(), 800);
+
+  if (obj.isBoss) {
+    bossActive = false;
+    bossKillCount++;
+    showEvent('🏆', `BOSS DERROTADO!`, `+${fmt(reward)} moedas${gemReward>0?' · +'+gemReward+' 💎':''}`);
+    showPopup(`👹 Boss morto! +${fmt(reward)} moedas!`, 'achievement');
+  } else {
+    killCount++;
+    bossKillCount += 1;
+    if (gemReward > 0) showPopup(`✨ +${fmt(reward)} 💰 +${gemReward} 💎`);
+  }
+
+  obj.el.remove();
+  enemies = enemies.filter(e => e.id !== obj.id);
+
+  document.getElementById('killBadge').textContent = `💀 ${killCount} kills`;
+  updateUI();
+}
+
+function showBossWarning(type) {
+  const area = document.getElementById('gameArea');
+  const w = document.createElement('div');
+  w.className = 'boss-warning';
+  w.innerHTML = `
+    <div class="boss-warning-text">⚠️ ${type.emoji} ${type.name} ⚠️</div>
+    <div class="boss-warning-sub">Rouba 50% das moedas ao tocar!</div>
+  `;
+  area.appendChild(w);
+  setTimeout(() => w.remove(), 2500);
+}
+
+function stealFlash() {
+  const area = document.getElementById('gameArea');
+  const fl = document.createElement('div');
+  fl.className = 'steal-flash';
+  area.appendChild(fl);
+  setTimeout(() => fl.remove(), 300);
+}
+
+// LOOP DE MOVIMENTO DOS INIMIGOS
+let lastEnemyFrame = 0;
+function enemyLoop(ts) {
+  const area = document.getElementById('gameArea');
+  if (!area) { requestAnimationFrame(enemyLoop); return; }
+  const aW = area.clientWidth;
+  const aH = area.clientHeight;
+  // Ponto alvo: centro (Michael)
+  const targetX = aW / 2 - 30;
+  const targetY = aH / 2 - 30;
+
+  const dt = ts - lastEnemyFrame;
+  lastEnemyFrame = ts;
+  const delta = Math.min(dt, 50); // cap at 50ms
+
+  enemies.forEach(obj => {
+    if (obj.dead) return;
+
+    const dx = targetX - obj.x;
+    const dy = targetY - obj.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < 55) {
+      // Touching Michael
+      obj.touching = true;
+      obj.touchTimer = (obj.touchTimer || 0) + delta;
+
+      if (obj.touchTimer >= (obj.isBoss ? 1200 : 500)) {
+        obj.touchTimer = 0;
+        const stolen = obj.isBoss
+          ? money * 0.50 * (1 - stealReduction)
+          : money * obj.steal * (1 - stealReduction);
+        if (stolen > 0 && money > 0) {
+          money = Math.max(0, money - stolen);
+          stealFlash();
+          const stealEl = document.createElement('div');
+          stealEl.className = 'enemy-dmg';
+          stealEl.style.color = obj.isBoss ? '#ff00aa' : '#ffaa00';
+          stealEl.style.fontSize = obj.isBoss ? '18px' : '13px';
+          stealEl.textContent = obj.isBoss
+            ? `👹 -${Math.round(50*(1-stealReduction))}%!`
+            : `-${fmt(stolen)}`;
+          stealEl.style.left = (targetX + (Math.random()*30-15)) + 'px';
+          stealEl.style.top  = (targetY - 20) + 'px';
+          area.appendChild(stealEl);
+          setTimeout(() => stealEl.remove(), 700);
+          updateUI();
+        }
+      }
+    } else {
+      obj.touching = false;
+      obj.touchTimer = 0;
+      // Move towards Michael
+      const spd = obj.speed * delta * 0.06;
+      obj.x += (dx / dist) * spd;
+      obj.y += (dy / dist) * spd;
+      obj.el.style.left = obj.x + 'px';
+      obj.el.style.top  = obj.y + 'px';
+    }
+
+    // Shake when touching
+    if (obj.touching) {
+      const shake = (Math.random() - 0.5) * 4;
+      obj.el.style.transform = `translate(${shake}px, ${shake}px)`;
+    } else {
+      obj.el.style.transform = '';
+    }
+  });
+
+  requestAnimationFrame(enemyLoop);
+}
+requestAnimationFrame(enemyLoop);
+
+// SPAWN TIMER
+// =============================================
+// SISTEMA DE HORDAS — só em níveis múltiplos de 20
+// =============================================
+let hordeActive      = false;   // horda em andamento agora?
+let hordeLevel       = 0;       // qual nível triggou a horda atual
+let hordeRemaining   = 0;       // inimigos que ainda precisam ser mortos
+let hordeTotal       = 0;
+let hordeSpawnTimer  = null;
+let lastCheckedLevel = 0;
+
+// Horde size escala com qual múltiplo de 20 é
+function hordeSize(lvl) {
+  const tier = lvl / 20; // 1,2,3,4,5
+  return 8 + tier * 4;   // 12, 16, 20, 24, 28
+}
+
+function startHorde(lvl) {
+  if (hordeActive) return;
+  hordeActive    = true;
+  hordeLevel     = lvl;
+  const total    = Math.floor(hordeSize(lvl));
+  hordeTotal     = total;
+  hordeRemaining = total;
+
+  // Boss obrigatório nesta horda (aparece no meio/fim)
+  const hasBoss = true;
+  let bossSpawned = false;
+  let spawned = 0;
+
+  showEvent('⚠️', `HORDA! NÍVEL ${lvl}`, `${total} inimigos se aproximam!`);
+  updateHordeBadge();
+
+  // Spawna inimigos aos poucos
+  const spawnInterval = Math.max(800, 2000 - lvl * 10);
+  hordeSpawnTimer = setInterval(() => {
+    if (spawned >= total) {
+      clearInterval(hordeSpawnTimer);
+      return;
+    }
+    // Boss no meio da horda
+    if (hasBoss && !bossSpawned && spawned >= Math.floor(total * 0.5)) {
+      bossSpawned = true;
+      spawnEnemy(true);
+    } else {
+      const normalCount = enemies.filter(e => !e.isBoss).length;
+      if (normalCount < 7) {
+        spawnEnemy(false);
+        spawned++;
+      }
+    }
+  }, spawnInterval);
+}
+
+function onEnemyKilledHorde(isBoss) {
+  if (!hordeActive) return;
+  hordeRemaining--;
+  updateHordeBadge();
+  if (hordeRemaining <= 0 && !enemies.some(e => !e.dead)) {
+    endHorde();
+  }
+}
+
+function endHorde() {
+  hordeActive = false;
+  if (hordeSpawnTimer) clearInterval(hordeSpawnTimer);
+  // limpa inimigos restantes (ex: se o boss ainda tiver vivo e morreu último)
+  enemies.forEach(e => { if (!e.dead) killEnemy(e); });
+  const reward = Math.floor(clickPower * 100 * (hordeLevel / 20));
+  const gemReward = hordeLevel / 20 * 5;
+  money    += reward;
+  totalMoneyEarned += reward;
+  diamonds += gemReward;
+  showEvent('🏆', `HORDA DERROTADA!`, `+${fmt(reward)} 💰  +${gemReward} 💎`);
+  updateHordeBadge();
+  updateUI();
+}
+
+function updateHordeBadge() {
+  const kb  = document.getElementById('killBadge');
+  const bct = document.getElementById('bossCounter');
+  if (!kb || !bct) return;
+  kb.textContent = `💀 ${killCount} kills`;
+  if (hordeActive) {
+    bct.textContent = `⚠️ HORDA: ${Math.max(0,hordeRemaining)} restantes`;
+    bct.style.borderColor = 'rgba(255,50,50,0.6)';
+    bct.style.color = '#ff6666';
+  } else {
+    // Próximo nível de horda
+    const nextHordeLevel = [20,40,60,80,100].find(l => l > currentLevel);
+    bct.textContent = nextHordeLevel
+      ? `⚠️ Horda no nível ${nextHordeLevel}`
+      : currentLevel >= 100 ? `🌙 Nível máximo!` : `⚠️ Horda no nível 100`;
+    bct.style.borderColor = 'rgba(155,48,255,0.4)';
+    bct.style.color = '#cc88ff';
+  }
+}
+
+// Intercepta killEnemy para notificar o sistema de horda
+const _origKillEnemy = killEnemy;
+killEnemy = function(obj) {
+  _origKillEnemy(obj);
+  onEnemyKilledHorde(obj.isBoss);
+  updateHordeBadge();
+};
+
+// Verifica mudança de nível a cada segundo
+setInterval(() => {
+  const lvl = currentLevel;
+  if (lvl === lastCheckedLevel) return;
+  lastCheckedLevel = lvl;
+
+  // Só múltiplos de 20, e só se não tiver horda ativa já
+  if (lvl % 20 === 0 && lvl >= 20 && !hordeActive && lvl !== hordeLevel) {
+    startHorde(lvl);
+  }
+
+  updateHordeBadge();
+}, 1000);
+
+// --- GAME LOOPS ---
+setInterval(() => {
+  money            += autoPower;
+  totalMoneyEarned += autoPower;
+  diamonds         += gemPower;
+  updateUI();
+}, 1000);
+
+setInterval(saveGame, 8000);
+
+setInterval(() => {
+  if (Math.random() < 0.12) triggerRandomEvent();
+}, 30000);
+
+// --- INIT ---
+loadGame();
+renderShops();
+renderAchievements();
+updateUI();
+
+console.log('%c🌙 Moonwalk Simulator Deluxe', 'font-size:20px;color:gold;font-weight:bold');
+console.log('%cConsole Admin: admin.help()', 'color:#9b30ff');
+</script>
+</body>
+</html>
